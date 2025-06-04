@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,7 +26,13 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
+					DEFAULT: '#6366f1',
+					50: '#eef2ff',
+					100: '#e0e7ff',
+					500: '#6366f1',
+					600: '#5b21b6',
+					700: '#4c1d95',
+					900: '#312e81',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
@@ -61,12 +68,40 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				success: {
+					DEFAULT: '#10b981',
+					50: '#ecfdf5',
+					100: '#d1fae5',
+					500: '#10b981',
+					600: '#059669',
+					700: '#047857'
+				},
+				warning: {
+					DEFAULT: '#f59e0b',
+					50: '#fffbeb',
+					100: '#fef3c7',
+					500: '#f59e0b',
+					600: '#d97706'
+				},
+				info: {
+					DEFAULT: '#3b82f6',
+					50: '#eff6ff',
+					100: '#dbeafe',
+					500: '#3b82f6',
+					600: '#2563eb'
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			backgroundImage: {
+				'gradient-primary': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+				'gradient-success': 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
+				'gradient-warning': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+				'gradient-dark': 'linear-gradient(135deg, #2c3e50 0%, #3498db 100%)',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -84,11 +119,52 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'slide-in': {
+					'0%': {
+						transform: 'translateX(-100%)'
+					},
+					'100%': {
+						transform: 'translateX(0)'
+					}
+				},
+				'bounce-soft': {
+					'0%, 20%, 50%, 80%, 100%': {
+						transform: 'translateY(0)'
+					},
+					'40%': {
+						transform: 'translateY(-10px)'
+					},
+					'60%': {
+						transform: 'translateY(-5px)'
+					}
+				},
+				'pulse-soft': {
+					'0%, 100%': {
+						opacity: '1'
+					},
+					'50%': {
+						opacity: '0.8'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.6s ease-out',
+				'slide-in': 'slide-in 0.5s ease-out',
+				'bounce-soft': 'bounce-soft 2s infinite',
+				'pulse-soft': 'pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			}
 		}
 	},
