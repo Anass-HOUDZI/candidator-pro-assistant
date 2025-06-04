@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   BarChart3, 
   Briefcase, 
@@ -19,16 +20,17 @@ interface AppLayoutProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: BarChart3, current: true },
-  { name: 'Candidatures', href: '/candidatures', icon: Briefcase, current: false },
-  { name: 'Entreprises', href: '/entreprises', icon: Users, current: false },
-  { name: 'Scoring', href: '/scoring', icon: Target, current: false },
-  { name: 'Automatisation', href: '/automation', icon: Settings, current: false },
-  { name: 'Analytics', href: '/analytics', icon: TrendingUp, current: false },
+  { name: 'Dashboard', href: '/', icon: BarChart3 },
+  { name: 'Candidatures', href: '/candidatures', icon: Briefcase },
+  { name: 'Entreprises', href: '/entreprises', icon: Users },
+  { name: 'Scoring', href: '/scoring', icon: Target },
+  { name: 'Automatisation', href: '/automation', icon: Settings },
+  { name: 'Analytics', href: '/analytics', icon: TrendingUp },
 ];
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -106,6 +108,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 };
 
 const SidebarContent: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
+  const location = useLocation();
+  
   return (
     <>
       <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
@@ -127,27 +131,31 @@ const SidebarContent: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
           <ul className="flex flex-1 flex-col gap-y-7">
             <li>
               <ul className="-mx-2 space-y-1">
-                {navigation.map((item) => (
-                  <li key={item.name}>
-                    <a
-                      href={item.href}
-                      className={cn(
-                        item.current
-                          ? 'bg-primary-50 text-primary-600 border-r-2 border-primary-600'
-                          : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50',
-                        'group flex gap-x-3 rounded-l-md p-3 text-sm leading-6 font-medium transition-all duration-200'
-                      )}
-                    >
-                      <item.icon
+                {navigation.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <li key={item.name}>
+                      <Link
+                        to={item.href}
+                        onClick={onClose}
                         className={cn(
-                          item.current ? 'text-primary-600' : 'text-gray-400 group-hover:text-primary-600',
-                          'h-5 w-5 shrink-0'
+                          isActive
+                            ? 'bg-primary-50 text-primary-600 border-r-2 border-primary-600'
+                            : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50',
+                          'group flex gap-x-3 rounded-l-md p-3 text-sm leading-6 font-medium transition-all duration-200'
                         )}
-                      />
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
+                      >
+                        <item.icon
+                          className={cn(
+                            isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-primary-600',
+                            'h-5 w-5 shrink-0'
+                          )}
+                        />
+                        {item.name}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </li>
           </ul>
