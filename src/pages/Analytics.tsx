@@ -1,17 +1,17 @@
 
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { TrendingUp, Calendar, Target, Award } from 'lucide-react';
+import { TrendingUp, Calendar, Target, Award, Users, Building2, Clock, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ComposedChart, Scatter, ScatterChart, ZAxis } from 'recharts';
 
 const Analytics = () => {
   const tendanceData = [
-    { mois: 'Oct', candidatures: 12, entretiens: 3, offres: 1 },
-    { mois: 'Nov', candidatures: 18, entretiens: 5, offres: 2 },
-    { mois: 'Déc', candidatures: 24, entretiens: 8, offres: 3 },
-    { mois: 'Jan', candidatures: 31, entretiens: 11, offres: 4 }
+    { mois: 'Oct', candidatures: 12, entretiens: 3, offres: 1, rejets: 8 },
+    { mois: 'Nov', candidatures: 18, entretiens: 5, offres: 2, rejets: 11 },
+    { mois: 'Déc', candidatures: 24, entretiens: 8, offres: 3, rejets: 13 },
+    { mois: 'Jan', candidatures: 31, entretiens: 11, offres: 4, rejets: 16 }
   ];
 
   const secteurData = [
@@ -26,6 +26,40 @@ const Analytics = () => {
     { name: 'Taux de réponse', value: 33, max: 100 },
     { name: 'Conversion entretien', value: 45, max: 100 },
     { name: 'Taux d\'acceptation', value: 78, max: 100 }
+  ];
+
+  const radarData = [
+    { skill: 'React', niveau: 95, demande: 85 },
+    { skill: 'Node.js', niveau: 80, demande: 90 },
+    { skill: 'Python', niveau: 70, demande: 75 },
+    { skill: 'TypeScript', niveau: 90, demande: 80 },
+    { skill: 'AWS', niveau: 65, demande: 95 },
+    { skill: 'Docker', niveau: 75, demande: 70 }
+  ];
+
+  const tempsReponseData = [
+    { jour: 'Lun', reponse: 2.3, ouverture: 65 },
+    { jour: 'Mar', reponse: 1.8, ouverture: 78 },
+    { jour: 'Mer', reponse: 2.1, ouverture: 72 },
+    { jour: 'Jeu', reponse: 1.5, ouverture: 85 },
+    { jour: 'Ven', reponse: 2.8, ouverture: 45 },
+    { jour: 'Sam', reponse: 4.2, ouverture: 25 },
+    { jour: 'Dim', reponse: 3.9, ouverture: 20 }
+  ];
+
+  const salaireData = [
+    { experience: '0-2 ans', salaire: 35000, candidatures: 12 },
+    { experience: '2-5 ans', salaire: 45000, candidatures: 28 },
+    { experience: '5-8 ans', salaire: 55000, candidatures: 35 },
+    { experience: '8+ ans', salaire: 70000, candidatures: 15 }
+  ];
+
+  const conversionFunnelData = [
+    { etape: 'Candidatures', valeur: 100, couleur: '#3B82F6' },
+    { etape: 'Réponses', valeur: 33, couleur: '#10B981' },
+    { etape: 'Entretiens', valeur: 15, couleur: '#F59E0B' },
+    { etape: 'Finaux', valeur: 8, couleur: '#EF4444' },
+    { etape: 'Offres', valeur: 4, couleur: '#8B5CF6' }
   ];
 
   return (
@@ -68,7 +102,7 @@ const Analytics = () => {
                   <p className="text-2xl font-bold text-gray-900">5.2j</p>
                   <p className="text-xs text-green-600">-0.8j vs mois dernier</p>
                 </div>
-                <Calendar className="h-8 w-8 text-green-500" />
+                <Clock className="h-8 w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
@@ -90,11 +124,11 @@ const Analytics = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">ROI candidatures</p>
-                  <p className="text-2xl font-bold text-gray-900">245%</p>
-                  <p className="text-xs text-green-600">+15% vs mois dernier</p>
+                  <p className="text-sm text-gray-600">Taux d'ouverture</p>
+                  <p className="text-2xl font-bold text-gray-900">68%</p>
+                  <p className="text-xs text-green-600">+12% vs mois dernier</p>
                 </div>
-                <Target className="h-8 w-8 text-purple-500" />
+                <Eye className="h-8 w-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
@@ -102,42 +136,123 @@ const Analytics = () => {
 
         {/* Graphiques principaux */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Tendance temporelle */}
+          {/* Tendance temporelle avec zones */}
           <Card>
             <CardHeader>
-              <CardTitle>Évolution des candidatures</CardTitle>
+              <CardTitle>Évolution détaillée des candidatures</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={tendanceData}>
+                <AreaChart data={tendanceData}>
+                  <defs>
+                    <linearGradient id="colorCandidatures" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorEntretiens" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="mois" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="candidatures" stroke="#3B82F6" strokeWidth={2} />
-                  <Line type="monotone" dataKey="entretiens" stroke="#10B981" strokeWidth={2} />
-                  <Line type="monotone" dataKey="offres" stroke="#F59E0B" strokeWidth={2} />
-                </LineChart>
+                  <Area type="monotone" dataKey="candidatures" stackId="1" stroke="#3B82F6" fill="url(#colorCandidatures)" />
+                  <Area type="monotone" dataKey="rejets" stackId="1" stroke="#EF4444" fill="#FEE2E2" />
+                  <Line type="monotone" dataKey="entretiens" stroke="#10B981" strokeWidth={3} />
+                  <Line type="monotone" dataKey="offres" stroke="#F59E0B" strokeWidth={3} />
+                </AreaChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          {/* Répartition par secteur */}
+          {/* Radar des compétences */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Analyse des compétences</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <RadarChart data={radarData}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="skill" />
+                  <PolarRadiusAxis angle={90} domain={[0, 100]} />
+                  <Radar name="Votre niveau" dataKey="niveau" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
+                  <Radar name="Demande marché" dataKey="demande" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
+                  <Tooltip />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Analyses avancées */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Funnel de conversion */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Funnel de conversion</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {conversionFunnelData.map((etape, index) => (
+                  <div key={etape.etape} className="relative">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">{etape.etape}</span>
+                      <span className="text-sm text-gray-600">{etape.valeur}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="h-3 rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${etape.valeur}%`,
+                          backgroundColor: etape.couleur
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Temps de réponse par jour */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance par jour</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <ComposedChart data={tempsReponseData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="jour" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Bar yAxisId="left" dataKey="reponse" fill="#3B82F6" name="Temps réponse (jours)" />
+                  <Line yAxisId="right" type="monotone" dataKey="ouverture" stroke="#10B981" strokeWidth={2} name="Taux ouverture %" />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Répartition par secteur (Donut) */}
           <Card>
             <CardHeader>
               <CardTitle>Candidatures par secteur</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
                     data={secteurData}
                     cx="50%"
                     cy="50%"
+                    innerRadius={60}
                     outerRadius={100}
-                    fill="#8884d8"
+                    paddingAngle={5}
                     dataKey="candidatures"
-                    label={({ secteur, percent }) => `${secteur} ${(percent * 100).toFixed(0)}%`}
                   >
                     {secteurData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.couleur} />
@@ -146,36 +261,85 @@ const Analytics = () => {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
+              <div className="mt-4 space-y-2">
+                {secteurData.map((entry) => (
+                  <div key={entry.secteur} className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.couleur }} />
+                    <span className="text-sm">{entry.secteur}: {entry.candidatures}</span>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Métriques de performance */}
+        {/* Analyse salaire/expérience */}
         <Card>
           <CardHeader>
-            <CardTitle>Indicateurs de performance</CardTitle>
+            <CardTitle>Analyse Salaire vs Expérience</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <ScatterChart data={salaireData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="experience" />
+                <YAxis dataKey="salaire" />
+                <ZAxis dataKey="candidatures" range={[100, 1000]} />
+                <Tooltip formatter={(value, name) => {
+                  if (name === 'salaire') return [`${value}€`, 'Salaire'];
+                  if (name === 'candidatures') return [value, 'Candidatures'];
+                  return [value, name];
+                }} />
+                <Scatter dataKey="salaire" fill="#3B82F6" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Métriques de performance améliorées */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Indicateurs de performance détaillés</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {performanceData.map((metric, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-900">{metric.name}</span>
-                    <span className="text-sm text-gray-600">{metric.value}%</span>
+                <div key={index} className="text-center">
+                  <div className="relative w-32 h-32 mx-auto mb-4">
+                    <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        className="text-gray-200"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="transparent"
+                        d="M18 2.0845
+                          a 15.9155 15.9155 0 0 1 0 31.831
+                          a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path
+                        className="text-blue-600"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeDasharray={`${metric.value}, 100`}
+                        strokeLinecap="round"
+                        fill="transparent"
+                        d="M18 2.0845
+                          a 15.9155 15.9155 0 0 1 0 31.831
+                          a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-gray-900">{metric.value}%</span>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${metric.value}%` }}
-                    />
-                  </div>
+                  <h4 className="font-medium text-gray-900">{metric.name}</h4>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Insights IA */}
+        {/* Insights IA et Prédictions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
@@ -207,7 +371,7 @@ const Analytics = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Prédictions</CardTitle>
+              <CardTitle>Prédictions & Objectifs</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -229,9 +393,9 @@ const Analytics = () => {
                 </div>
                 
                 <div className="p-4 border border-gray-200 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Salaire cible</h4>
+                  <h4 className="font-medium text-gray-900">Salaire cible optimisé</h4>
                   <p className="text-sm text-gray-600 mt-1">
-                    Fourchette optimale: <span className="font-medium text-purple-600">52-58k€</span> (+8% marché)
+                    Fourchette recommandée: <span className="font-medium text-purple-600">52-58k€</span> (+8% marché)
                   </p>
                 </div>
               </div>
