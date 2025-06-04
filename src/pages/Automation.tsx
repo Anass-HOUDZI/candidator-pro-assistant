@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Bot, Clock, Mail, CheckCircle, Settings, Play, Pause } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AddAutomationDialog } from '@/components/automation/AddAutomationDialog';
 
 const Automation = () => {
   const automations = [
@@ -42,10 +42,7 @@ const Automation = () => {
             <h1 className="text-3xl font-bold text-gray-900">Automatisation</h1>
             <p className="text-gray-600 mt-2">Configurez et gérez vos processus automatisés</p>
           </div>
-          <Button className="flex items-center gap-2">
-            <Bot className="h-4 w-4" />
-            Nouvelle automatisation
-          </Button>
+          <AddAutomationDialog />
         </div>
 
         {/* Stats d'automatisation */}

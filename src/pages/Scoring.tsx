@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Target, TrendingUp, Award, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AnalyzeOffersDialog } from '@/components/scoring/AnalyzeOffersDialog';
 
 const Scoring = () => {
   const scores = [
@@ -52,10 +52,7 @@ const Scoring = () => {
             <h1 className="text-3xl font-bold text-gray-900">Système de Scoring IA</h1>
             <p className="text-gray-600 mt-2">Évaluez intelligemment vos opportunités de carrière</p>
           </div>
-          <Button className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            Analyser nouvelles offres
-          </Button>
+          <AnalyzeOffersDialog />
         </div>
 
         {/* Métriques de scoring */}

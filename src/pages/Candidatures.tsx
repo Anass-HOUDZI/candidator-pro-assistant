@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Plus, Filter, Search, MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-react';
+import { Filter, Search, MoreHorizontal, Eye, Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AddCandidatureDialog } from '@/components/candidatures/AddCandidatureDialog';
 
 const Candidatures = () => {
   const candidatures = [
@@ -54,10 +54,7 @@ const Candidatures = () => {
             <h1 className="text-3xl font-bold text-gray-900">Mes Candidatures</h1>
             <p className="text-gray-600 mt-2">Gérez et suivez toutes vos candidatures</p>
           </div>
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Nouvelle candidature
-          </Button>
+          <AddCandidatureDialog />
         </div>
 
         {/* Filtres et recherche */}

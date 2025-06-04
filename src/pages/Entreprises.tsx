@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Plus, Building2, MapPin, Users, Star } from 'lucide-react';
+import { Building2, MapPin, Users, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AddEntrepriseDialog } from '@/components/entreprises/AddEntrepriseDialog';
 
 const Entreprises = () => {
   const entreprises = [
@@ -48,10 +48,7 @@ const Entreprises = () => {
             <h1 className="text-3xl font-bold text-gray-900">Base Entreprises</h1>
             <p className="text-gray-600 mt-2">Découvrez et analysez les entreprises cibles</p>
           </div>
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Ajouter entreprise
-          </Button>
+          <AddEntrepriseDialog />
         </div>
 
         {/* Statistiques */}
