@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -83,14 +82,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
                 </button>
                 
-                <div className="flex items-center gap-x-3">
+                <Link to="/profile" className="flex items-center gap-x-3 hover:bg-gray-100 rounded-lg p-2 transition-colors">
                   <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center">
                     <span className="text-sm font-medium text-white">JC</span>
                   </div>
                   <span className="hidden lg:flex lg:items-center">
                     <span className="text-sm font-semibold text-gray-900">Job Candidat</span>
                   </span>
-                </div>
+                </Link>
               </div>
             </div>
           </div>
