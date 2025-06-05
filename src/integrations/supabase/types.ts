@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analytics_metrics: {
+        Row: {
+          candidatures_envoyees: number | null
+          created_at: string
+          date_metric: string
+          entretiens_planifies: number | null
+          id: string
+          offres_recues: number | null
+          secteur: string | null
+          taux_reponse: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          candidatures_envoyees?: number | null
+          created_at?: string
+          date_metric?: string
+          entretiens_planifies?: number | null
+          id?: string
+          offres_recues?: number | null
+          secteur?: string | null
+          taux_reponse?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          candidatures_envoyees?: number | null
+          created_at?: string
+          date_metric?: string
+          entretiens_planifies?: number | null
+          id?: string
+          offres_recues?: number | null
+          secteur?: string | null
+          taux_reponse?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       automatisations: {
         Row: {
           actif: boolean | null
@@ -124,6 +163,138 @@ export type Database = {
           secteur?: string | null
           site_web?: string | null
           taille?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      offres_scoring: {
+        Row: {
+          analyse_ia: string | null
+          contenu_offre: string | null
+          created_at: string
+          entreprise: string
+          id: string
+          poste: string
+          recommandation: string | null
+          score_competences: number | null
+          score_culture: number | null
+          score_global: number | null
+          score_localisation: number | null
+          updated_at: string
+          url_offre: string | null
+          user_id: string
+        }
+        Insert: {
+          analyse_ia?: string | null
+          contenu_offre?: string | null
+          created_at?: string
+          entreprise: string
+          id?: string
+          poste: string
+          recommandation?: string | null
+          score_competences?: number | null
+          score_culture?: number | null
+          score_global?: number | null
+          score_localisation?: number | null
+          updated_at?: string
+          url_offre?: string | null
+          user_id: string
+        }
+        Update: {
+          analyse_ia?: string | null
+          contenu_offre?: string | null
+          created_at?: string
+          entreprise?: string
+          id?: string
+          poste?: string
+          recommandation?: string | null
+          score_competences?: number | null
+          score_culture?: number | null
+          score_global?: number | null
+          score_localisation?: number | null
+          updated_at?: string
+          url_offre?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          experience_years: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          localisation: string | null
+          phone: string | null
+          position_recherchee: string | null
+          salaire_souhaite: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          experience_years?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          localisation?: string | null
+          phone?: string | null
+          position_recherchee?: string | null
+          salaire_souhaite?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          experience_years?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          localisation?: string | null
+          phone?: string | null
+          position_recherchee?: string | null
+          salaire_souhaite?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_objectives: {
+        Row: {
+          created_at: string
+          id: string
+          mois_objectif: string
+          objectif_candidatures: number | null
+          objectif_entretiens: number | null
+          objectif_taux_reponse: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mois_objectif?: string
+          objectif_candidatures?: number | null
+          objectif_entretiens?: number | null
+          objectif_taux_reponse?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mois_objectif?: string
+          objectif_candidatures?: number | null
+          objectif_entretiens?: number | null
+          objectif_taux_reponse?: number | null
           updated_at?: string
           user_id?: string
         }

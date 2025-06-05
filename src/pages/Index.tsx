@@ -1,12 +1,75 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { MetricsCards } from '@/components/dashboard/MetricsCards';
 import { CandidaturesChart } from '@/components/dashboard/CandidaturesChart';
 import { RecentApplications } from '@/components/dashboard/RecentApplications';
 import { AlertsPanel } from '@/components/dashboard/AlertsPanel';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
+  const { toast } = useToast();
+  const [dashboardData, setDashboardData] = useState({
+    candidatures: 0,
+    entretiens: 0,
+    offres: 0,
+    tauxReponse: 0,
+    objectifs: {
+      candidatures: 30,
+      entretiens: 10,
+      tauxReponse: 40
+    }
+  });
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return;
+      }
+
+      // Récupérer les candidatures
+      const { data: candidatures } = await supabase
+        .from('candidatures')
+        .select('*')
+        .eq('user_id', user.id);
+
+      // Récupérer les objectifs de l'utilisateur
+      const { data: objectifs } = await supabase
+        .from('user_objectives')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('mois_objectif', new Date().toISOString().slice(0, 7) + '-01')
+        .single();
+
+      const totalCandidatures = candidatures?.length || 0;
+      const entretiens = candidatures?.filter(c => c.statut === 'Entretien')?.length || 0;
+      const offres = candidatures?.filter(c => c.statut === 'Offre reçue')?.length || 0;
+      const tauxReponse = totalCandidatures > 0 ? Math.round((entretiens / totalCandidatures) * 100) : 0;
+
+      setDashboardData({
+        candidatures: totalCandidatures,
+        entretiens,
+        offres,
+        tauxReponse,
+        objectifs: {
+          candidatures: objectifs?.objectif_candidatures || 30,
+          entretiens: objectifs?.objectif_entretiens || 10,
+          tauxReponse: objectifs?.objectif_taux_reponse || 40
+        }
+      });
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -57,30 +120,44 @@ const Index = () => {
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white animate-fade-in">
             <h3 className="text-lg font-semibold mb-2">Prochains Objectifs</h3>
             <ul className="space-y-2 text-sm">
-              <li>• Atteindre 30 candidatures ce mois</li>
-              <li>• Améliorer le taux de réponse à 40%</li>
-              <li>• Planifier 10 entretiens</li>
+              <li>• Atteindre {dashboardData.objectifs.candidatures} candidatures ce mois</li>
+              <li>• Améliorer le taux de réponse à {dashboardData.objectifs.tauxReponse}%</li>
+              <li>• Planifier {dashboardData.objectifs.entretiens} entretiens</li>
             </ul>
           </div>
           
           <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-xl p-6 text-white animate-fade-in" style={{ animationDelay: '200ms' }}>
-            <h3 className="text-lg font-semibold mb-2">Conseils IA</h3>
-            <p className="text-sm">
-              Vos candidatures dans le secteur Tech ont 23% plus de chances de succès. 
-              Concentrez vos efforts sur les startups de 50-200 employés.
-            </p>
+            <h3 className="text-lg font-semibold mb-2">Performance Actuelle</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Candidatures:</span>
+                <span className="font-semibold">{dashboardData.candidatures}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Taux de réponse:</span>
+                <span className="font-semibold">{dashboardData.tauxReponse}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Entretiens:</span>
+                <span className="font-semibold">{dashboardData.entretiens}</span>
+              </div>
+            </div>
           </div>
           
           <div className="bg-gradient-to-r from-orange-500 to-pink-600 rounded-xl p-6 text-white animate-fade-in" style={{ animationDelay: '400ms' }}>
-            <h3 className="text-lg font-semibold mb-2">Performance</h3>
+            <h3 className="text-lg font-semibold mb-2">Progression</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Score moyen:</span>
-                <span className="font-semibold">87/100</span>
+                <span>Objectif candidatures:</span>
+                <span className="font-semibold">{Math.round((dashboardData.candidatures / dashboardData.objectifs.candidatures) * 100)}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Objectif entretiens:</span>
+                <span className="font-semibold">{Math.round((dashboardData.entretiens / dashboardData.objectifs.entretiens) * 100)}%</span>
               </div>
               <div className="flex justify-between">
                 <span>Tendance:</span>
-                <span className="font-semibold">📈 +12%</span>
+                <span className="font-semibold">📈 En cours</span>
               </div>
             </div>
           </div>
