@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -10,9 +11,19 @@ import {
   Bell,
   Search,
   Menu,
-  X
+  X,
+  LogOut,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -30,6 +41,22 @@ const navigation = [
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  // Obtenir les initiales de l'utilisateur
+  const getUserInitials = () => {
+    if (user?.user_metadata?.first_name && user?.user_metadata?.last_name) {
+      return `${user.user_metadata.first_name[0]}${user.user_metadata.last_name[0]}`.toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    return 'U';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -82,14 +109,32 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
                 </button>
                 
-                <Link to="/profile" className="flex items-center gap-x-3 hover:bg-gray-100 rounded-lg p-2 transition-colors">
-                  <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center">
-                    <span className="text-sm font-medium text-white">JC</span>
-                  </div>
-                  <span className="hidden lg:flex lg:items-center">
-                    <span className="text-sm font-semibold text-gray-900">Job Candidat</span>
-                  </span>
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-x-3 hover:bg-gray-100 rounded-lg p-2">
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary-500 to-purple-600 flex items-center justify-center">
+                        <span className="text-sm font-medium text-white">{getUserInitials()}</span>
+                      </div>
+                      <span className="hidden lg:flex lg:items-center">
+                        <span className="text-sm font-semibold text-gray-900">
+                          {user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'Utilisateur'}
+                        </span>
+                      </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        Mon Profil
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-red-600">
+                      <LogOut className="h-4 w-4" />
+                      Déconnexion
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
@@ -114,7 +159,7 @@ const SidebarContent: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
       <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
         <div className="flex h-16 shrink-0 items-center">
           <div className="flex items-center gap-x-3">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-primary-500 to-purple-600 flex items-center justify-center">
               <Briefcase className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">JobFlow</span>
