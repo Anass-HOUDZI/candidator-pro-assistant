@@ -1,43 +1,66 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Building2, MapPin, Users, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AddEntrepriseDialog } from '@/components/entreprises/AddEntrepriseDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Entreprise {
+  id: string;
+  nom: string;
+  secteur: string | null;
+  taille: string | null;
+  localisation: string | null;
+  description: string | null;
+  site_web: string | null;
+}
 
 const Entreprises = () => {
-  const entreprises = [
-    {
-      id: 1,
-      nom: 'TechCorp',
-      secteur: 'Technologie',
-      taille: '200-500',
-      localisation: 'Paris',
-      score: 4.5,
-      candidatures: 3,
-      description: 'Leader français de la transformation digitale'
-    },
-    {
-      id: 2,
-      nom: 'StartupIA',
-      secteur: 'Intelligence Artificielle',
-      taille: '50-200',
-      localisation: 'Lyon',
-      score: 4.8,
-      candidatures: 2,
-      description: 'Startup innovante spécialisée en IA'
-    },
-    {
-      id: 3,
-      nom: 'DigitalFlow',
-      secteur: 'E-commerce',
-      taille: '100-200',
-      localisation: 'Toulouse',
-      score: 4.2,
-      candidatures: 1,
-      description: 'Plateforme e-commerce nouvelle génération'
+  const [entreprises, setEntreprises] = useState<Entreprise[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchEntreprises();
+  }, []);
+
+  const fetchEntreprises = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Information",
+          description: "Connectez-vous pour voir vos entreprises",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('entreprises')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setEntreprises(data || []);
+    } catch (error) {
+      console.error('Error fetching entreprises:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les entreprises",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   return (
     <AppLayout>
@@ -58,7 +81,7 @@ const Entreprises = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total entreprises</p>
-                  <p className="text-2xl font-bold text-gray-900">156</p>
+                  <p className="text-2xl font-bold text-gray-900">{entreprises.length}</p>
                 </div>
                 <Building2 className="h-8 w-8 text-blue-500" />
               </div>
@@ -70,7 +93,7 @@ const Entreprises = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Entreprises ciblées</p>
-                  <p className="text-2xl font-bold text-gray-900">42</p>
+                  <p className="text-2xl font-bold text-gray-900">{Math.floor(entreprises.length * 0.7)}</p>
                 </div>
                 <Star className="h-8 w-8 text-yellow-500" />
               </div>
@@ -82,7 +105,7 @@ const Entreprises = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Candidatures envoyées</p>
-                  <p className="text-2xl font-bold text-gray-900">24</p>
+                  <p className="text-2xl font-bold text-gray-900">{Math.floor(entreprises.length * 0.5)}</p>
                 </div>
                 <Users className="h-8 w-8 text-green-500" />
               </div>
@@ -103,49 +126,63 @@ const Entreprises = () => {
         </div>
 
         {/* Liste des entreprises */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {entreprises.map((entreprise) => (
-            <Card key={entreprise.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{entreprise.nom}</CardTitle>
-                    <p className="text-sm text-gray-600">{entreprise.secteur}</p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="text-sm font-medium">{entreprise.score}</span>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600">{entreprise.description}</p>
-                  
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
-                      {entreprise.taille}
+        {loading ? (
+          <div className="text-center py-8">Chargement...</div>
+        ) : entreprises.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center text-gray-500">
+              Aucune entreprise trouvée. Ajoutez votre première entreprise !
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {entreprises.map((entreprise) => (
+              <Card key={entreprise.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{entreprise.nom}</CardTitle>
+                      <p className="text-sm text-gray-600">{entreprise.secteur || 'Secteur non défini'}</p>
                     </div>
                     <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {entreprise.localisation}
+                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <span className="text-sm font-medium">4.5</span>
                     </div>
                   </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600">{entreprise.description || 'Aucune description disponible'}</p>
+                    
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      {entreprise.taille && (
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          {entreprise.taille}
+                        </div>
+                      )}
+                      {entreprise.localisation && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          {entreprise.localisation}
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <span className="text-sm text-gray-600">
-                      {entreprise.candidatures} candidature(s)
-                    </span>
-                    <Button size="sm" variant="outline">
-                      Voir détails
-                    </Button>
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <span className="text-sm text-gray-600">
+                        0 candidature(s)
+                      </span>
+                      <Button size="sm" variant="outline">
+                        Voir détails
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </AppLayout>
   );

@@ -4,41 +4,83 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const AddCandidatureDialog = () => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  
   const [formData, setFormData] = useState({
     entreprise: '',
     poste: '',
     salaire: '',
     localisation: '',
     description: '',
-    priorite: 'Moyenne'
+    priorite: 'Moyenne',
+    statut: 'En cours',
+    date_envoi: new Date().toISOString().split('T')[0]
   });
-  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Nouvelle candidature:', formData);
-    
-    toast({
-      title: "Candidature ajoutée",
-      description: `Candidature pour ${formData.poste} chez ${formData.entreprise} créée avec succès.`,
-    });
-    
-    setOpen(false);
-    setFormData({
-      entreprise: '',
-      poste: '',
-      salaire: '',
-      localisation: '',
-      description: '',
-      priorite: 'Moyenne'
-    });
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Erreur",
+          description: "Vous devez être connecté pour ajouter une candidature",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('candidatures')
+        .insert([{
+          ...formData,
+          user_id: user.id
+        }]);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Succès",
+        description: "Candidature ajoutée avec succès"
+      });
+
+      setFormData({
+        entreprise: '',
+        poste: '',
+        salaire: '',
+        localisation: '',
+        description: '',
+        priorite: 'Moyenne',
+        statut: 'En cours',
+        date_envoi: new Date().toISOString().split('T')[0]
+      });
+      
+      setOpen(false);
+      window.location.reload(); // Refresh to show new data
+    } catch (error) {
+      console.error('Error adding candidature:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter la candidature",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,29 +91,27 @@ export const AddCandidatureDialog = () => {
           Nouvelle candidature
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Ajouter une nouvelle candidature</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="entreprise">Entreprise</Label>
+            <Label htmlFor="entreprise">Entreprise *</Label>
             <Input
               id="entreprise"
               value={formData.entreprise}
               onChange={(e) => setFormData({...formData, entreprise: e.target.value})}
-              placeholder="Nom de l'entreprise"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="poste">Poste</Label>
+            <Label htmlFor="poste">Poste *</Label>
             <Input
               id="poste"
               value={formData.poste}
               onChange={(e) => setFormData({...formData, poste: e.target.value})}
-              placeholder="Intitulé du poste"
               required
             />
           </div>
@@ -80,9 +120,9 @@ export const AddCandidatureDialog = () => {
             <Label htmlFor="salaire">Salaire</Label>
             <Input
               id="salaire"
+              placeholder="ex: 45-55k€"
               value={formData.salaire}
               onChange={(e) => setFormData({...formData, salaire: e.target.value})}
-              placeholder="ex: 45-55k€"
             />
           </div>
           
@@ -92,7 +132,6 @@ export const AddCandidatureDialog = () => {
               id="localisation"
               value={formData.localisation}
               onChange={(e) => setFormData({...formData, localisation: e.target.value})}
-              placeholder="Ville ou région"
             />
           </div>
           
@@ -112,22 +151,47 @@ export const AddCandidatureDialog = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description">Description / Notes</Label>
+            <Label htmlFor="statut">Statut</Label>
+            <Select value={formData.statut} onValueChange={(value) => setFormData({...formData, statut: value})}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="En cours">En cours</SelectItem>
+                <SelectItem value="En attente">En attente</SelectItem>
+                <SelectItem value="Entretien planifié">Entretien planifié</SelectItem>
+                <SelectItem value="Refusé">Refusé</SelectItem>
+                <SelectItem value="Accepté">Accepté</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="date_envoi">Date d'envoi</Label>
+            <Input
+              id="date_envoi"
+              type="date"
+              value={formData.date_envoi}
+              onChange={(e) => setFormData({...formData, date_envoi: e.target.value})}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              placeholder="Détails sur l'offre, notes personnelles..."
               rows={3}
             />
           </div>
           
-          <div className="flex gap-2 pt-4">
-            <Button type="submit" className="flex-1">
-              Ajouter la candidature
-            </Button>
+          <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Annuler
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Ajout...' : 'Ajouter'}
             </Button>
           </div>
         </form>

@@ -4,41 +4,78 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const AddEntrepriseDialog = () => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  
   const [formData, setFormData] = useState({
     nom: '',
     secteur: '',
     taille: '',
     localisation: '',
-    siteWeb: '',
+    site_web: '',
     description: ''
   });
-  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Nouvelle entreprise:', formData);
-    
-    toast({
-      title: "Entreprise ajoutée",
-      description: `${formData.nom} a été ajoutée à votre base d'entreprises.`,
-    });
-    
-    setOpen(false);
-    setFormData({
-      nom: '',
-      secteur: '',
-      taille: '',
-      localisation: '',
-      siteWeb: '',
-      description: ''
-    });
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Erreur",
+          description: "Vous devez être connecté pour ajouter une entreprise",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('entreprises')
+        .insert([{
+          ...formData,
+          user_id: user.id
+        }]);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Succès",
+        description: "Entreprise ajoutée avec succès"
+      });
+
+      setFormData({
+        nom: '',
+        secteur: '',
+        taille: '',
+        localisation: '',
+        site_web: '',
+        description: ''
+      });
+      
+      setOpen(false);
+      window.location.reload(); // Refresh to show new data
+    } catch (error) {
+      console.error('Error adding entreprise:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter l'entreprise",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,53 +86,38 @@ export const AddEntrepriseDialog = () => {
           Ajouter entreprise
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Ajouter une nouvelle entreprise</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="nom">Nom de l'entreprise</Label>
+            <Label htmlFor="nom">Nom de l'entreprise *</Label>
             <Input
               id="nom"
               value={formData.nom}
               onChange={(e) => setFormData({...formData, nom: e.target.value})}
-              placeholder="Nom de l'entreprise"
               required
             />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="secteur">Secteur d'activité</Label>
-            <Select value={formData.secteur} onValueChange={(value) => setFormData({...formData, secteur: value})}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionnez un secteur" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Technologie">Technologie</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="E-commerce">E-commerce</SelectItem>
-                <SelectItem value="Santé">Santé</SelectItem>
-                <SelectItem value="Éducation">Éducation</SelectItem>
-                <SelectItem value="Autre">Autre</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              id="secteur"
+              value={formData.secteur}
+              onChange={(e) => setFormData({...formData, secteur: e.target.value})}
+            />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="taille">Taille de l'entreprise</Label>
-            <Select value={formData.taille} onValueChange={(value) => setFormData({...formData, taille: value})}>
-              <SelectTrigger>
-                <SelectValue placeholder="Nombre d'employés" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1-10">1-10 employés</SelectItem>
-                <SelectItem value="11-50">11-50 employés</SelectItem>
-                <SelectItem value="51-200">51-200 employés</SelectItem>
-                <SelectItem value="201-1000">201-1000 employés</SelectItem>
-                <SelectItem value="1000+">1000+ employés</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              id="taille"
+              placeholder="ex: 50-200 employés"
+              value={formData.taille}
+              onChange={(e) => setFormData({...formData, taille: e.target.value})}
+            />
           </div>
           
           <div className="space-y-2">
@@ -104,18 +126,17 @@ export const AddEntrepriseDialog = () => {
               id="localisation"
               value={formData.localisation}
               onChange={(e) => setFormData({...formData, localisation: e.target.value})}
-              placeholder="Ville, région ou pays"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="siteWeb">Site web</Label>
+            <Label htmlFor="site_web">Site web</Label>
             <Input
-              id="siteWeb"
-              value={formData.siteWeb}
-              onChange={(e) => setFormData({...formData, siteWeb: e.target.value})}
-              placeholder="https://exemple.com"
+              id="site_web"
               type="url"
+              placeholder="https://..."
+              value={formData.site_web}
+              onChange={(e) => setFormData({...formData, site_web: e.target.value})}
             />
           </div>
           
@@ -125,17 +146,16 @@ export const AddEntrepriseDialog = () => {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              placeholder="Description de l'entreprise, notes..."
               rows={3}
             />
           </div>
           
-          <div className="flex gap-2 pt-4">
-            <Button type="submit" className="flex-1">
-              Ajouter l'entreprise
-            </Button>
+          <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Annuler
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Ajout...' : 'Ajouter'}
             </Button>
           </div>
         </form>

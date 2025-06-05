@@ -4,13 +4,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const AddAutomationDialog = () => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  
   const [formData, setFormData] = useState({
     nom: '',
     type: '',
@@ -18,69 +22,102 @@ export const AddAutomationDialog = () => {
     frequence: 'quotidien',
     actif: true
   });
-  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Nouvelle automatisation:', formData);
-    
-    toast({
-      title: "Automatisation créée",
-      description: `L'automatisation "${formData.nom}" a été configurée avec succès.`,
-    });
-    
-    setOpen(false);
-    setFormData({
-      nom: '',
-      type: '',
-      description: '',
-      frequence: 'quotidien',
-      actif: true
-    });
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Erreur",
+          description: "Vous devez être connecté pour ajouter une automatisation",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('automatisations')
+        .insert([{
+          ...formData,
+          user_id: user.id
+        }]);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Succès",
+        description: "Automatisation ajoutée avec succès"
+      });
+
+      setFormData({
+        nom: '',
+        type: '',
+        description: '',
+        frequence: 'quotidien',
+        actif: true
+      });
+      
+      setOpen(false);
+      window.location.reload(); // Refresh to show new data
+    } catch (error) {
+      console.error('Error adding automatisation:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter l'automatisation",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
-          <Bot className="h-4 w-4" />
+          <Plus className="h-4 w-4" />
           Nouvelle automatisation
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Créer une nouvelle automatisation</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="nom">Nom de l'automatisation</Label>
+            <Label htmlFor="nom">Nom de l'automatisation *</Label>
             <Input
               id="nom"
               value={formData.nom}
               onChange={(e) => setFormData({...formData, nom: e.target.value})}
-              placeholder="Nom de votre automatisation"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="type">Type d'automatisation</Label>
+            <Label htmlFor="type">Type d'automatisation *</Label>
             <Select value={formData.type} onValueChange={(value) => setFormData({...formData, type: value})}>
               <SelectTrigger>
-                <SelectValue placeholder="Choisissez un type" />
+                <SelectValue placeholder="Sélectionner un type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="relance-email">Relance Email</SelectItem>
-                <SelectItem value="veille-emploi">Veille Emploi</SelectItem>
-                <SelectItem value="rapport-auto">Rapport Automatique</SelectItem>
-                <SelectItem value="linkedin-outreach">LinkedIn Outreach</SelectItem>
-                <SelectItem value="suivi-candidature">Suivi Candidature</SelectItem>
+                <SelectItem value="email">Email automatique</SelectItem>
+                <SelectItem value="relance">Relance candidature</SelectItem>
+                <SelectItem value="veille">Veille emploi</SelectItem>
+                <SelectItem value="rapport">Rapport automatique</SelectItem>
+                <SelectItem value="notification">Notification</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="frequence">Fréquence d'exécution</Label>
+            <Label htmlFor="frequence">Fréquence</Label>
             <Select value={formData.frequence} onValueChange={(value) => setFormData({...formData, frequence: value})}>
               <SelectTrigger>
                 <SelectValue />
@@ -89,7 +126,7 @@ export const AddAutomationDialog = () => {
                 <SelectItem value="quotidien">Quotidien</SelectItem>
                 <SelectItem value="hebdomadaire">Hebdomadaire</SelectItem>
                 <SelectItem value="mensuel">Mensuel</SelectItem>
-                <SelectItem value="sur-evenement">Sur événement</SelectItem>
+                <SelectItem value="unique">Une fois</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -100,17 +137,16 @@ export const AddAutomationDialog = () => {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              placeholder="Décrivez ce que fait cette automatisation..."
               rows={3}
             />
           </div>
           
-          <div className="flex gap-2 pt-4">
-            <Button type="submit" className="flex-1">
-              Créer l'automatisation
-            </Button>
+          <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Annuler
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Création...' : 'Créer'}
             </Button>
           </div>
         </form>

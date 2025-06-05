@@ -1,37 +1,94 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Bot, Clock, Mail, CheckCircle, Settings, Play, Pause } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AddAutomationDialog } from '@/components/automation/AddAutomationDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Automatisation {
+  id: string;
+  nom: string;
+  type: string;
+  description: string | null;
+  frequence: string | null;
+  actif: boolean | null;
+  created_at: string;
+}
 
 const Automation = () => {
-  const automations = [
-    {
-      id: 1,
-      nom: 'Relance automatique',
-      description: 'Envoie des relances 7 jours après candidature',
-      statut: 'Actif',
-      prochaine: '2024-01-20 10:00',
-      executions: 15
-    },
-    {
-      id: 2,
-      nom: 'Veille offres LinkedIn',
-      description: 'Scanne LinkedIn pour nouvelles opportunités',
-      statut: 'Actif',
-      prochaine: '2024-01-19 09:00',
-      executions: 42
-    },
-    {
-      id: 3,
-      nom: 'Rapport hebdomadaire',
-      description: 'Génère un rapport de performance chaque lundi',
-      statut: 'Pausé',
-      prochaine: '2024-01-22 08:00',
-      executions: 8
+  const [automatisations, setAutomatisations] = useState<Automatisation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchAutomatisations();
+  }, []);
+
+  const fetchAutomatisations = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Information",
+          description: "Connectez-vous pour voir vos automatisations",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('automatisations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setAutomatisations(data || []);
+    } catch (error) {
+      console.error('Error fetching automatisations:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les automatisations",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const toggleAutomatisation = async (id: string, currentStatus: boolean | null) => {
+    try {
+      const { error } = await supabase
+        .from('automatisations')
+        .update({ actif: !currentStatus })
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Refresh the list
+      fetchAutomatisations();
+      
+      toast({
+        title: "Succès",
+        description: `Automatisation ${!currentStatus ? 'activée' : 'désactivée'}`
+      });
+    } catch (error) {
+      console.error('Error toggling automatisation:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier l'automatisation",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <AppLayout>
@@ -52,7 +109,9 @@ const Automation = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Automatisations actives</p>
-                  <p className="text-2xl font-bold text-gray-900">12</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {automatisations.filter(a => a.actif).length}
+                  </p>
                 </div>
                 <Bot className="h-8 w-8 text-blue-500" />
               </div>
@@ -63,8 +122,8 @@ const Automation = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Emails envoyés</p>
-                  <p className="text-2xl font-bold text-gray-900">147</p>
+                  <p className="text-sm text-gray-600">Total automatisations</p>
+                  <p className="text-2xl font-bold text-gray-900">{automatisations.length}</p>
                 </div>
                 <Mail className="h-8 w-8 text-green-500" />
               </div>
@@ -102,50 +161,65 @@ const Automation = () => {
             <CardTitle>Workflows configurés</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {automations.map((automation) => (
-                <div key={automation.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-lg ${automation.statut === 'Actif' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
-                      <Bot className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">{automation.nom}</h3>
-                      <p className="text-sm text-gray-600">{automation.description}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">
-                        {automation.executions} exécutions
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        Prochaine: {automation.prochaine}
-                      </p>
+            {loading ? (
+              <div className="text-center py-8">Chargement...</div>
+            ) : automatisations.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                Aucune automatisation trouvée. Créez votre première automatisation !
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {automatisations.map((automatisation) => (
+                  <div key={automatisation.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-lg ${automatisation.actif ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
+                        <Bot className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{automatisation.nom}</h3>
+                        <p className="text-sm text-gray-600">
+                          {automatisation.description || `Automatisation de type ${automatisation.type}`}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Fréquence: {automatisation.frequence || 'Non définie'} • 
+                          Créé le {new Date(automatisation.created_at).toLocaleDateString('fr-FR')}
+                        </p>
+                      </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        automation.statut === 'Actif' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {automation.statut}
-                      </span>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">
+                          Type: {automatisation.type}
+                        </p>
+                      </div>
                       
-                      <Button variant="ghost" size="sm">
-                        {automation.statut === 'Actif' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                      </Button>
-                      
-                      <Button variant="ghost" size="sm">
-                        <Settings className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          automatisation.actif 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {automatisation.actif ? 'Actif' : 'Inactif'}
+                        </span>
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => toggleAutomatisation(automatisation.id, automatisation.actif)}
+                        >
+                          {automatisation.actif ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        </Button>
+                        
+                        <Button variant="ghost" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
