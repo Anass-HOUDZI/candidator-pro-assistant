@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -24,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { NotificationsPanel } from '@/components/notifications/NotificationsPanel';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -40,6 +40,7 @@ const navigation = [
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
 
@@ -104,10 +105,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </div>
               
               <div className="flex items-center gap-x-4 lg:gap-x-6">
-                <button className="relative rounded-full p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100">
-                  <Bell className="h-6 w-6" />
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
-                </button>
+                <div className="relative">
+                  <button 
+                    className="relative rounded-full p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors"
+                    onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  >
+                    <Bell className="h-6 w-6" />
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
+                  </button>
+                  
+                  <NotificationsPanel 
+                    isOpen={notificationsOpen}
+                    onClose={() => setNotificationsOpen(false)}
+                  />
+                </div>
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Building2, MapPin, Users, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +20,7 @@ interface Entreprise {
 }
 
 const Entreprises = () => {
+  const navigate = useNavigate();
   const [entreprises, setEntreprises] = useState<Entreprise[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -60,6 +62,10 @@ const Entreprises = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCardClick = (entrepriseId: string) => {
+    navigate(`/entreprises/${entrepriseId}`);
   };
 
   return (
@@ -137,7 +143,11 @@ const Entreprises = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {entreprises.map((entreprise) => (
-              <Card key={entreprise.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card 
+                key={entreprise.id} 
+                className="hover:shadow-lg transition-shadow cursor-pointer hover:scale-105 transform transition-transform duration-200"
+                onClick={() => handleCardClick(entreprise.id)}
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -152,7 +162,9 @@ const Entreprises = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <p className="text-sm text-gray-600">{entreprise.description || 'Aucune description disponible'}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {entreprise.description || 'Aucune description disponible'}
+                    </p>
                     
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                       {entreprise.taille && (
@@ -173,7 +185,14 @@ const Entreprises = () => {
                       <span className="text-sm text-gray-600">
                         0 candidature(s)
                       </span>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCardClick(entreprise.id);
+                        }}
+                      >
                         Voir détails
                       </Button>
                     </div>

@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -83,6 +83,12 @@ const getScoreColor = (score: number) => {
 };
 
 export const RecentApplications: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleVoirTout = () => {
+    navigate('/candidatures');
+  };
+
   return (
     <Card className="animate-fade-in">
       <CardHeader className="pb-4">
@@ -90,7 +96,7 @@ export const RecentApplications: React.FC = () => {
           <CardTitle className="text-lg font-semibold text-gray-900">
             Candidatures Récentes
           </CardTitle>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleVoirTout}>
             Voir tout
             <ExternalLink className="ml-2 h-4 w-4" />
           </Button>
@@ -124,8 +130,9 @@ export const RecentApplications: React.FC = () => {
                 return (
                   <tr 
                     key={app.id} 
-                    className="hover:bg-gray-50 transition-colors duration-200"
+                    className="hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
                     style={{ animationDelay: `${index * 100}ms` }}
+                    onClick={() => navigate('/candidatures')}
                   >
                     <td className="py-4 px-6">
                       <div>
@@ -157,7 +164,14 @@ export const RecentApplications: React.FC = () => {
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Action spécifique pour chaque candidature
+                        }}
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </td>
