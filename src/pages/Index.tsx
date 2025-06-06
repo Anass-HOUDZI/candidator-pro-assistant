@@ -21,6 +21,7 @@ const Index = () => {
       tauxReponse: 40
     }
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
@@ -28,9 +29,11 @@ const Index = () => {
 
   const fetchDashboardData = async () => {
     try {
+      setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        setIsLoading(false);
         return;
       }
 
@@ -46,7 +49,7 @@ const Index = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('mois_objectif', new Date().toISOString().slice(0, 7) + '-01')
-        .single();
+        .maybeSingle();
 
       const totalCandidatures = candidatures?.length || 0;
       const entretiens = candidatures?.filter(c => c.statut === 'Entretien')?.length || 0;
@@ -67,43 +70,52 @@ const Index = () => {
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données du dashboard",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
+      <div className="space-y-8 bg-gradient-to-br from-gray-50 to-white min-h-screen">
+        {/* Header amélioré */}
         <div className="animate-fade-in">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-8 text-white shadow-2xl">
+            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="relative z-10">
+              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
                 Dashboard de Candidatures
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-blue-100 text-lg font-medium">
                 Suivez vos performances et optimisez votre recherche d'emploi
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Dernière mise à jour</p>
-              <p className="text-lg font-semibold text-gray-900">
-                {new Date().toLocaleDateString('fr-FR', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
-              </p>
-            </div>
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-purple-300/20 rounded-full blur-2xl"></div>
           </div>
         </div>
 
         {/* Métriques principales */}
-        <MetricsCards />
+        <MetricsCards 
+          candidatures={dashboardData.candidatures}
+          entretiens={dashboardData.entretiens} 
+          offres={dashboardData.offres}
+          tauxReponse={dashboardData.tauxReponse}
+          isLoading={isLoading}
+        />
 
         {/* Graphiques */}
-        <CandidaturesChart />
+        <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
+          <CandidaturesChart />
+        </div>
 
         {/* Grille principale */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style={{ animationDelay: '450ms' }}>
           {/* Candidatures récentes - 2/3 de la largeur */}
           <div className="lg:col-span-2">
             <RecentApplications />
@@ -115,49 +127,85 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Footer insights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-200">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white animate-fade-in">
-            <h3 className="text-lg font-semibold mb-2">Prochains Objectifs</h3>
-            <ul className="space-y-2 text-sm">
-              <li>• Atteindre {dashboardData.objectifs.candidatures} candidatures ce mois</li>
-              <li>• Améliorer le taux de réponse à {dashboardData.objectifs.tauxReponse}%</li>
-              <li>• Planifier {dashboardData.objectifs.entretiens} entretiens</li>
-            </ul>
+        {/* Footer insights amélioré */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 animate-fade-in" style={{ animationDelay: '600ms' }}>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent"></div>
+            <div className="relative z-10">
+              <h3 className="text-xl font-bold mb-3 flex items-center">
+                🎯 Prochains Objectifs
+              </h3>
+              <ul className="space-y-2 text-sm font-medium">
+                <li className="flex items-center">
+                  <span className="w-2 h-2 bg-white rounded-full mr-3"></span>
+                  Atteindre {dashboardData.objectifs.candidatures} candidatures ce mois
+                </li>
+                <li className="flex items-center">
+                  <span className="w-2 h-2 bg-white rounded-full mr-3"></span>
+                  Améliorer le taux de réponse à {dashboardData.objectifs.tauxReponse}%
+                </li>
+                <li className="flex items-center">
+                  <span className="w-2 h-2 bg-white rounded-full mr-3"></span>
+                  Planifier {dashboardData.objectifs.entretiens} entretiens
+                </li>
+              </ul>
+            </div>
           </div>
           
-          <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-xl p-6 text-white animate-fade-in" style={{ animationDelay: '200ms' }}>
-            <h3 className="text-lg font-semibold mb-2">Performance Actuelle</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Candidatures:</span>
-                <span className="font-semibold">{dashboardData.candidatures}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Taux de réponse:</span>
-                <span className="font-semibold">{dashboardData.tauxReponse}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Entretiens:</span>
-                <span className="font-semibold">{dashboardData.entretiens}</span>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-green-600 to-teal-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent"></div>
+            <div className="relative z-10">
+              <h3 className="text-xl font-bold mb-3 flex items-center">
+                📊 Performance Actuelle
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Candidatures:</span>
+                  <span className="text-lg font-bold bg-white/20 px-2 py-1 rounded-lg">
+                    {dashboardData.candidatures}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Taux de réponse:</span>
+                  <span className="text-lg font-bold bg-white/20 px-2 py-1 rounded-lg">
+                    {dashboardData.tauxReponse}%
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Entretiens:</span>
+                  <span className="text-lg font-bold bg-white/20 px-2 py-1 rounded-lg">
+                    {dashboardData.entretiens}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-orange-500 to-pink-600 rounded-xl p-6 text-white animate-fade-in" style={{ animationDelay: '400ms' }}>
-            <h3 className="text-lg font-semibold mb-2">Progression</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Objectif candidatures:</span>
-                <span className="font-semibold">{Math.round((dashboardData.candidatures / dashboardData.objectifs.candidatures) * 100)}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Objectif entretiens:</span>
-                <span className="font-semibold">{Math.round((dashboardData.entretiens / dashboardData.objectifs.entretiens) * 100)}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Tendance:</span>
-                <span className="font-semibold">📈 En cours</span>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 via-pink-600 to-rose-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent"></div>
+            <div className="relative z-10">
+              <h3 className="text-xl font-bold mb-3 flex items-center">
+                🚀 Progression
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Objectif candidatures:</span>
+                  <span className="text-lg font-bold bg-white/20 px-2 py-1 rounded-lg">
+                    {Math.round((dashboardData.candidatures / dashboardData.objectifs.candidatures) * 100)}%
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Objectif entretiens:</span>
+                  <span className="text-lg font-bold bg-white/20 px-2 py-1 rounded-lg">
+                    {Math.round((dashboardData.entretiens / dashboardData.objectifs.entretiens) * 100)}%
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Tendance:</span>
+                  <span className="text-lg font-bold bg-white/20 px-2 py-1 rounded-lg">
+                    {dashboardData.candidatures > 0 ? '📈 En progression' : '📋 Démarrer'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
