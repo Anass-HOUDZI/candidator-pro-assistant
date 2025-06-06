@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,36 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+
+interface MonthlyData {
+  mois: string;
+  candidatures: number;
+  entretiens: number;
+  offres: number;
+}
+
+interface SecteurData {
+  name: string;
+  candidatures: number;
+  entreprises: number;
+}
+
+interface RecentApplication {
+  id: string;
+  entreprise: string;
+  poste: string;
+  statut: string;
+  date_envoi?: string;
+  created_at: string;
+}
+
+interface AlertItem {
+  id: string;
+  type: 'urgent' | 'warning' | 'info';
+  title: string;
+  message: string;
+  time: string;
+}
 
 const Analytics = () => {
   const { toast } = useToast();
@@ -20,10 +49,10 @@ const Analytics = () => {
     entreprisesCiblees: 0,
     tauxSucces: 0
   });
-  const [chartData, setChartData] = useState([]);
-  const [secteurData, setSecteurData] = useState([]);
-  const [recentApplications, setRecentApplications] = useState([]);
-  const [alerts, setAlerts] = useState([]);
+  const [chartData, setChartData] = useState<MonthlyData[]>([]);
+  const [secteurData, setSecteurData] = useState<SecteurData[]>([]);
+  const [recentApplications, setRecentApplications] = useState<RecentApplication[]>([]);
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
@@ -78,20 +107,20 @@ const Analytics = () => {
       });
 
       // Données pour l'évolution des candidatures (par mois)
-      const candidaturesByMonth = candidatures?.reduce((acc, candidature) => {
+      const candidaturesByMonth: Record<string, MonthlyData> = {};
+      
+      candidatures?.forEach(candidature => {
         const date = new Date(candidature.date_envoi || candidature.created_at);
         const monthKey = date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
         
-        if (!acc[monthKey]) {
-          acc[monthKey] = { mois: monthKey, candidatures: 0, entretiens: 0, offres: 0 };
+        if (!candidaturesByMonth[monthKey]) {
+          candidaturesByMonth[monthKey] = { mois: monthKey, candidatures: 0, entretiens: 0, offres: 0 };
         }
         
-        acc[monthKey].candidatures++;
-        if (candidature.statut === 'Entretien') acc[monthKey].entretiens++;
-        if (candidature.statut === 'Offre reçue') acc[monthKey].offres++;
-        
-        return acc;
-      }, {}) || {};
+        candidaturesByMonth[monthKey].candidatures++;
+        if (candidature.statut === 'Entretien') candidaturesByMonth[monthKey].entretiens++;
+        if (candidature.statut === 'Offre reçue') candidaturesByMonth[monthKey].offres++;
+      });
 
       const monthlyData = Object.values(candidaturesByMonth).sort((a, b) => 
         new Date(a.mois).getTime() - new Date(b.mois).getTime()
@@ -100,28 +129,28 @@ const Analytics = () => {
       setChartData(monthlyData);
 
       // Données par secteur (basé sur les entreprises et candidatures)
-      const secteurs = entreprises?.reduce((acc, entreprise) => {
+      const secteurs: Record<string, SecteurData> = {};
+      
+      entreprises?.forEach(entreprise => {
         const secteur = entreprise.secteur || 'Non spécifié';
         const candidaturesEntreprise = candidatures?.filter(c => c.entreprise === entreprise.nom)?.length || 0;
         
-        if (!acc[secteur]) {
-          acc[secteur] = { name: secteur, candidatures: 0, entreprises: 0 };
+        if (!secteurs[secteur]) {
+          secteurs[secteur] = { name: secteur, candidatures: 0, entreprises: 0 };
         }
         
-        acc[secteur].candidatures += candidaturesEntreprise;
-        acc[secteur].entreprises++;
-        
-        return acc;
-      }, {}) || {};
+        secteurs[secteur].candidatures += candidaturesEntreprise;
+        secteurs[secteur].entreprises++;
+      });
 
-      const secteurChartData = Object.values(secteurs).filter(s => s.candidatures > 0);
+      const secteurChartData = Object.values(secteurs).filter(secteurItem => secteurItem.candidatures > 0);
       setSecteurData(secteurChartData);
 
       // Candidatures récentes (5 dernières)
       setRecentApplications(candidatures?.slice(0, 5) || []);
 
       // Générer des alertes basées sur les données
-      const generatedAlerts = [];
+      const generatedAlerts: AlertItem[] = [];
       
       if (totalCandidatures === 0) {
         generatedAlerts.push({
@@ -167,8 +196,8 @@ const Analytics = () => {
     }
   };
 
-  const getStatusColor = (statut) => {
-    const colors = {
+  const getStatusColor = (statut: string) => {
+    const colors: Record<string, string> = {
       'En cours': 'bg-blue-100 text-blue-800',
       'Entretien': 'bg-purple-100 text-purple-800',
       'Offre reçue': 'bg-green-100 text-green-800',
@@ -177,7 +206,7 @@ const Analytics = () => {
     return colors[statut] || 'bg-gray-100 text-gray-800';
   };
 
-  const getAlertIcon = (type) => {
+  const getAlertIcon = (type: string) => {
     switch (type) {
       case 'urgent': return <AlertTriangle className="h-4 w-4 text-red-500" />;
       case 'warning': return <Calendar className="h-4 w-4 text-yellow-500" />;

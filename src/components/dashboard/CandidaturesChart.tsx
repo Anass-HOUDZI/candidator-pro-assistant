@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +5,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Building } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+interface MonthlyData {
+  mois: string;
+  candidatures: number;
+  entretiens: number;
+  acceptations: number;
+}
+
+interface SecteurData {
+  secteur: string;
+  candidatures: number;
+  taux: number;
+  totalEntretiens: number;
+}
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -26,8 +39,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export const CandidaturesChart: React.FC = () => {
   const { toast } = useToast();
-  const [candidaturesData, setCandidaturesData] = useState([]);
-  const [secteurData, setSecteurData] = useState([]);
+  const [candidaturesData, setCandidaturesData] = useState<MonthlyData[]>([]);
+  const [secteurData, setSecteurData] = useState<SecteurData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,45 +70,44 @@ export const CandidaturesChart: React.FC = () => {
       if (entreprisesError) throw entreprisesError;
 
       // Préparer les données d'évolution par mois
-      const candidaturesByMonth = candidatures?.reduce((acc, candidature) => {
+      const candidaturesByMonth: Record<string, MonthlyData> = {};
+      
+      candidatures?.forEach(candidature => {
         const date = new Date(candidature.date_envoi || candidature.created_at);
         const monthKey = date.toLocaleDateString('fr-FR', { month: 'short' });
         
-        if (!acc[monthKey]) {
-          acc[monthKey] = { mois: monthKey, candidatures: 0, entretiens: 0, acceptations: 0 };
+        if (!candidaturesByMonth[monthKey]) {
+          candidaturesByMonth[monthKey] = { mois: monthKey, candidatures: 0, entretiens: 0, acceptations: 0 };
         }
         
-        acc[monthKey].candidatures++;
-        if (candidature.statut === 'Entretien') acc[monthKey].entretiens++;
-        if (candidature.statut === 'Offre reçue') acc[monthKey].acceptations++;
-        
-        return acc;
-      }, {}) || {};
+        candidaturesByMonth[monthKey].candidatures++;
+        if (candidature.statut === 'Entretien') candidaturesByMonth[monthKey].entretiens++;
+        if (candidature.statut === 'Offre reçue') candidaturesByMonth[monthKey].acceptations++;
+      });
 
       const monthlyData = Object.values(candidaturesByMonth);
       setCandidaturesData(monthlyData);
 
       // Préparer les données par secteur
-      const secteurs = entreprises?.reduce((acc, entreprise) => {
+      const secteurs: Record<string, SecteurData> = {};
+      
+      entreprises?.forEach(entreprise => {
         const secteur = entreprise.secteur || 'Non spécifié';
         const candidaturesEntreprise = candidatures?.filter(c => c.entreprise === entreprise.nom)?.length || 0;
         const entretiens = candidatures?.filter(c => c.entreprise === entreprise.nom && c.statut === 'Entretien')?.length || 0;
-        const tauxReponse = candidaturesEntreprise > 0 ? Math.round((entretiens / candidaturesEntreprise) * 100) : 0;
         
-        if (!acc[secteur]) {
-          acc[secteur] = { secteur, candidatures: 0, taux: 0, totalEntretiens: 0 };
+        if (!secteurs[secteur]) {
+          secteurs[secteur] = { secteur, candidatures: 0, taux: 0, totalEntretiens: 0 };
         }
         
-        acc[secteur].candidatures += candidaturesEntreprise;
-        acc[secteur].totalEntretiens += entretiens;
-        
-        return acc;
-      }, {}) || {};
+        secteurs[secteur].candidatures += candidaturesEntreprise;
+        secteurs[secteur].totalEntretiens += entretiens;
+      });
 
       // Calculer le taux de réponse pour chaque secteur
-      const secteurChartData = Object.values(secteurs).map(s => ({
-        ...s,
-        taux: s.candidatures > 0 ? Math.round((s.totalEntretiens / s.candidatures) * 100) : 0
+      const secteurChartData = Object.values(secteurs).map(secteurItem => ({
+        ...secteurItem,
+        taux: secteurItem.candidatures > 0 ? Math.round((secteurItem.totalEntretiens / secteurItem.candidatures) * 100) : 0
       })).filter(s => s.candidatures > 0);
 
       setSecteurData(secteurChartData);
