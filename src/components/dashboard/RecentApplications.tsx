@@ -13,10 +13,15 @@ interface Application {
   id: string;
   entreprise: string;
   poste: string;
-  statut: 'En cours' | 'Entretien' | 'Refusée' | 'Offre reçue';
-  date_envoi: string;
+  statut: string;
+  date_envoi: string | null;
   localisation?: string;
   salaire?: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  description?: string;
+  priorite?: string;
 }
 
 const getStatusConfig = (status: string) => {
@@ -26,7 +31,7 @@ const getStatusConfig = (status: string) => {
     'Refusée': { color: 'bg-red-100 text-red-800', label: 'Refusée' },
     'Offre reçue': { color: 'bg-green-100 text-green-800', label: 'Offre reçue' }
   };
-  return configs[status as keyof typeof configs] || configs['En cours'];
+  return configs[status as keyof typeof configs] || { color: 'bg-gray-100 text-gray-800', label: status };
 };
 
 const getProchainAction = (statut: string, dateEnvoi: string) => {
