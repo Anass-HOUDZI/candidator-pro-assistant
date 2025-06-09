@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building2, MapPin, Users, Star, Globe, Briefcase, TrendingUp, DollarSign } from 'lucide-react';
+import { Building2, MapPin, Users, Globe, Briefcase, TrendingUp } from 'lucide-react';
 
 interface Entreprise {
   id: string;
@@ -20,17 +20,13 @@ interface EntrepriseCardProps {
   candidaturesCount: number;
   onCardClick: (id: string) => void;
   priority?: 'Haute' | 'Moyenne' | 'Faible';
-  chiffreAffaires?: string;
-  typeContrat?: string;
 }
 
 export const EntrepriseCard: React.FC<EntrepriseCardProps> = ({ 
   entreprise, 
   candidaturesCount, 
   onCardClick,
-  priority = 'Moyenne',
-  chiffreAffaires,
-  typeContrat 
+  priority = 'Moyenne'
 }) => {
   const getPriorityColor = (prio: string) => {
     switch (prio) {
@@ -69,10 +65,6 @@ export const EntrepriseCard: React.FC<EntrepriseCardProps> = ({
               <span>{entreprise.secteur || 'Secteur non défini'}</span>
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-sm font-medium">4.5</span>
-          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -93,18 +85,6 @@ export const EntrepriseCard: React.FC<EntrepriseCardProps> = ({
               <div className="flex items-center gap-2 text-gray-600">
                 <MapPin className="h-4 w-4" />
                 <span>{entreprise.localisation}</span>
-              </div>
-            )}
-            {chiffreAffaires && (
-              <div className="flex items-center gap-2 text-gray-600">
-                <DollarSign className="h-4 w-4" />
-                <span>{chiffreAffaires}</span>
-              </div>
-            )}
-            {typeContrat && (
-              <div className="flex items-center gap-2 text-gray-600">
-                <Briefcase className="h-4 w-4" />
-                <span>{typeContrat}</span>
               </div>
             )}
           </div>

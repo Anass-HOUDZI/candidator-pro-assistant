@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Building2, MapPin, Users, Star, Search, Filter } from 'lucide-react';
+import { Building2, MapPin, Users, Search, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,7 +89,6 @@ const Entreprises = () => {
 
   // Calculs des statistiques
   const totalEntreprises = entreprises.length;
-  const entreprisesCiblees = Math.floor(totalEntreprises * 0.8);
   const candidaturesEnvoyees = candidatures.length;
   const entretiens = candidatures.filter(c => c.statut === 'Entretien').length;
   const tauxSucces = candidaturesEnvoyees > 0 ? Math.round((entretiens / candidaturesEnvoyees) * 100) : 0;
@@ -124,7 +122,7 @@ const Entreprises = () => {
         </div>
 
         {/* Statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="animate-fade-in hover:shadow-lg transition-all duration-300">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -133,18 +131,6 @@ const Entreprises = () => {
                   <p className="text-2xl font-bold text-gray-900">{totalEntreprises}</p>
                 </div>
                 <Building2 className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="animate-fade-in hover:shadow-lg transition-all duration-300" style={{ animationDelay: '100ms' }}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Entreprises ciblées</p>
-                  <p className="text-2xl font-bold text-gray-900">{entreprisesCiblees}</p>
-                </div>
-                <Star className="h-8 w-8 text-yellow-500" />
               </div>
             </CardContent>
           </Card>
@@ -244,8 +230,6 @@ const Entreprises = () => {
                   candidaturesCount={candidaturesCount}
                   onCardClick={handleCardClick}
                   priority={candidaturesCount > 2 ? 'Haute' : candidaturesCount > 0 ? 'Moyenne' : 'Faible'}
-                  chiffreAffaires="10M€ - 50M€"
-                  typeContrat="CDI"
                 />
               );
             })}

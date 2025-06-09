@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +16,7 @@ import {
 } from 'lucide-react';
 import { AddAutomationDialog } from '@/components/automation/AddAutomationDialog';
 import { AutomationCard } from '@/components/automation/AutomationCard';
+import { ConfigureAutomationDialog } from '@/components/automation/ConfigureAutomationDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -68,6 +68,8 @@ const automationTemplates = [
 const Automation = () => {
   const [automations, setAutomations] = useState<Automation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [configureAutomation, setConfigureAutomation] = useState<Automation | null>(null);
+  const [isConfigureDialogOpen, setIsConfigureDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -214,6 +216,11 @@ const Automation = () => {
     }
   };
 
+  const handleConfigureAutomation = (automation: Automation) => {
+    setConfigureAutomation(automation);
+    setIsConfigureDialogOpen(true);
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -354,12 +361,20 @@ const Automation = () => {
                     automation={automation}
                     onToggle={toggleAutomation}
                     onDelete={handleDeleteAutomation}
+                    onConfigure={handleConfigureAutomation}
                   />
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
+
+        <ConfigureAutomationDialog
+          automation={configureAutomation}
+          open={isConfigureDialogOpen}
+          onOpenChange={setIsConfigureDialogOpen}
+          onUpdate={fetchAutomations}
+        />
       </div>
     </AppLayout>
   );

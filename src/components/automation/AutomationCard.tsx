@@ -41,13 +41,15 @@ interface AutomationCardProps {
   onToggle: (id: string, currentState: boolean) => void;
   onEdit?: (automation: Automation) => void;
   onDelete?: (id: string) => void;
+  onConfigure?: (automation: Automation) => void;
 }
 
 export const AutomationCard: React.FC<AutomationCardProps> = ({ 
   automation, 
   onToggle, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onConfigure 
 }) => {
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -134,7 +136,7 @@ export const AutomationCard: React.FC<AutomationCardProps> = ({
                     Modifier
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onConfigure && onConfigure(automation)}>
                   <Settings className="h-4 w-4 mr-2" />
                   Configurer
                 </DropdownMenuItem>

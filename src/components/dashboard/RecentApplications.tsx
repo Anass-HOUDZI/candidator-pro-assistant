@@ -1,13 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, ExternalLink, Calendar, MessageSquare } from 'lucide-react';
+import { MoreHorizontal, ExternalLink, Calendar, MessageSquare, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Application {
   id: string;
@@ -94,6 +99,11 @@ export const RecentApplications: React.FC = () => {
 
   const handleVoirTout = () => {
     navigate('/candidatures');
+  };
+
+  const handleEditApplication = (applicationId: string) => {
+    // Navigate to candidatures page with the specific application selected for editing
+    navigate('/candidatures', { state: { editApplicationId: applicationId } });
   };
 
   if (loading) {
@@ -188,16 +198,37 @@ export const RecentApplications: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate('/candidatures');
-                          }}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditApplication(app.id);
+                              }}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/candidatures');
+                              }}
+                            >
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Voir détails
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </td>
                     </tr>
                   );
