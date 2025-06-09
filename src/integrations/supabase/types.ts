@@ -129,6 +129,114 @@ export type Database = {
         }
         Relationships: []
       }
+      documents: {
+        Row: {
+          created_at: string
+          est_par_defaut: boolean | null
+          id: string
+          mime_type: string | null
+          nom: string
+          taille_fichier: number | null
+          type: string
+          updated_at: string
+          url_fichier: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          est_par_defaut?: boolean | null
+          id?: string
+          mime_type?: string | null
+          nom: string
+          taille_fichier?: number | null
+          type: string
+          updated_at?: string
+          url_fichier: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          est_par_defaut?: boolean | null
+          id?: string
+          mime_type?: string | null
+          nom?: string
+          taille_fichier?: number | null
+          type?: string
+          updated_at?: string
+          url_fichier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emails_envoyes: {
+        Row: {
+          candidature_id: string | null
+          corps_message: string
+          created_at: string
+          date_envoi: string
+          date_lecture: string | null
+          date_reponse: string | null
+          destinataire_email: string
+          documents_joints: Json | null
+          entreprise_id: string | null
+          gmail_message_id: string | null
+          id: string
+          statut_envoi: string | null
+          sujet: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          candidature_id?: string | null
+          corps_message: string
+          created_at?: string
+          date_envoi?: string
+          date_lecture?: string | null
+          date_reponse?: string | null
+          destinataire_email: string
+          documents_joints?: Json | null
+          entreprise_id?: string | null
+          gmail_message_id?: string | null
+          id?: string
+          statut_envoi?: string | null
+          sujet: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          candidature_id?: string | null
+          corps_message?: string
+          created_at?: string
+          date_envoi?: string
+          date_lecture?: string | null
+          date_reponse?: string | null
+          destinataire_email?: string
+          documents_joints?: Json | null
+          entreprise_id?: string | null
+          gmail_message_id?: string | null
+          id?: string
+          statut_envoi?: string | null
+          sujet?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emails_envoyes_candidature_id_fkey"
+            columns: ["candidature_id"]
+            isOneToOne: false
+            referencedRelation: "candidatures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emails_envoyes_entreprise_id_fkey"
+            columns: ["entreprise_id"]
+            isOneToOne: false
+            referencedRelation: "entreprises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entreprises: {
         Row: {
           created_at: string

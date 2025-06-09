@@ -4,23 +4,19 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { 
   Mail, 
   Search, 
   FileText, 
   Calendar,
-  Settings,
-  Play,
-  Pause,
-  MoreHorizontal,
   Plus,
   Zap,
   Clock,
   CheckCircle,
-  AlertCircle
+  Pause
 } from 'lucide-react';
 import { AddAutomationDialog } from '@/components/automation/AddAutomationDialog';
+import { AutomationCard } from '@/components/automation/AutomationCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -191,18 +187,31 @@ const Automation = () => {
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'email': return Mail;
-      case 'veille': return Search;
-      case 'rapport': return FileText;
-      case 'rappel': return Calendar;
-      default: return Settings;
-    }
-  };
+  const handleDeleteAutomation = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette automatisation ?')) return;
 
-  const getStatusColor = (actif: boolean | null) => {
-    return actif ? 'text-green-600' : 'text-red-600';
+    try {
+      const { error } = await supabase
+        .from('automatisations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAutomations(prev => prev.filter(auto => auto.id !== id));
+      
+      toast({
+        title: "Automatisation supprimée",
+        description: "L'automatisation a été supprimée avec succès",
+      });
+    } catch (error) {
+      console.error('Error deleting automation:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'automatisation",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -264,7 +273,9 @@ const Automation = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Temps économisé</p>
-                  <p className="text-2xl font-bold text-purple-600">2.5h</p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {Math.round(automations.filter(a => a.actif).length * 2.5)}h
+                  </p>
                 </div>
                 <Clock className="h-8 w-8 text-purple-500" />
               </div>
@@ -331,47 +342,20 @@ const Automation = () => {
               <div className="text-center py-8">Chargement...</div>
             ) : automations.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                Aucune automatisation configurée. Utilisez les templates ci-dessus pour commencer !
+                <Zap className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                <p className="text-lg font-medium mb-2">Aucune automatisation configurée</p>
+                <p className="text-sm">Utilisez les templates ci-dessus pour commencer !</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {automations.map((automation) => {
-                  const IconComponent = getTypeIcon(automation.type);
-                  return (
-                    <div
-                      key={automation.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 bg-gray-100 rounded-lg">
-                          <IconComponent className="h-5 w-5 text-gray-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-gray-900">{automation.nom}</h3>
-                          <p className="text-sm text-gray-600">{automation.description}</p>
-                          <div className="flex items-center gap-4 mt-1">
-                            <Badge variant="outline" className="text-xs">
-                              {automation.frequence || 'quotidien'}
-                            </Badge>
-                            <span className={cn("text-xs font-medium", getStatusColor(automation.actif))}>
-                              {automation.actif ? 'Active' : 'En pause'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={automation.actif || false}
-                          onCheckedChange={() => toggleAutomation(automation.id, automation.actif || false)}
-                        />
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+                {automations.map((automation) => (
+                  <AutomationCard
+                    key={automation.id}
+                    automation={automation}
+                    onToggle={toggleAutomation}
+                    onDelete={handleDeleteAutomation}
+                  />
+                ))}
               </div>
             )}
           </CardContent>

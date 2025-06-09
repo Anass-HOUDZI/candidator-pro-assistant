@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Building2, MapPin, Users, Star } from 'lucide-react';
+import { Building2, MapPin, Users, Star, Search, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { AddEntrepriseDialog } from '@/components/entreprises/AddEntrepriseDialog';
+import { EntrepriseCard } from '@/components/entreprises/EntrepriseCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,6 +32,8 @@ const Entreprises = () => {
   const [entreprises, setEntreprises] = useState<Entreprise[]>([]);
   const [candidatures, setCandidatures] = useState<Candidature[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterSecteur, setFilterSecteur] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,7 +90,7 @@ const Entreprises = () => {
 
   // Calculs des statistiques
   const totalEntreprises = entreprises.length;
-  const entreprisesCiblees = Math.floor(totalEntreprises * 0.8); // 80% des entreprises sont considérées comme ciblées
+  const entreprisesCiblees = Math.floor(totalEntreprises * 0.8);
   const candidaturesEnvoyees = candidatures.length;
   const entretiens = candidatures.filter(c => c.statut === 'Entretien').length;
   const tauxSucces = candidaturesEnvoyees > 0 ? Math.round((entretiens / candidaturesEnvoyees) * 100) : 0;
@@ -95,6 +99,17 @@ const Entreprises = () => {
   const getCandidaturesCount = (nomEntreprise: string) => {
     return candidatures.filter(c => c.entreprise === nomEntreprise).length;
   };
+
+  // Filtrer les entreprises
+  const filteredEntreprises = entreprises.filter(entreprise => {
+    const matchesSearch = entreprise.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (entreprise.secteur && entreprise.secteur.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSecteur = filterSecteur === '' || entreprise.secteur === filterSecteur;
+    return matchesSearch && matchesSecteur;
+  });
+
+  // Obtenir la liste unique des secteurs
+  const secteurs = [...new Set(entreprises.map(e => e.secteur).filter(Boolean))];
 
   return (
     <AppLayout>
@@ -108,7 +123,7 @@ const Entreprises = () => {
           <AddEntrepriseDialog />
         </div>
 
-        {/* Statistiques mises à jour */}
+        {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="animate-fade-in hover:shadow-lg transition-all duration-300">
             <CardContent className="p-6">
@@ -159,6 +174,34 @@ const Entreprises = () => {
           </Card>
         </div>
 
+        {/* Filtres et recherche */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Rechercher par nom ou secteur..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <select
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                value={filterSecteur}
+                onChange={(e) => setFilterSecteur(e.target.value)}
+              >
+                <option value="">Tous les secteurs</option>
+                {secteurs.map(secteur => (
+                  <option key={secteur} value={secteur}>{secteur}</option>
+                ))}
+              </select>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Liste des entreprises */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -177,77 +220,33 @@ const Entreprises = () => {
               </Card>
             ))}
           </div>
-        ) : entreprises.length === 0 ? (
+        ) : filteredEntreprises.length === 0 ? (
           <Card className="animate-fade-in">
             <CardContent className="p-8 text-center text-gray-500">
               <Building2 className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium mb-2">Aucune entreprise trouvée</p>
-              <p className="text-sm">Ajoutez votre première entreprise pour commencer !</p>
+              <p className="text-lg font-medium mb-2">
+                {searchTerm || filterSecteur ? 'Aucune entreprise trouvée avec ces filtres' : 'Aucune entreprise trouvée'}
+              </p>
+              <p className="text-sm">
+                {searchTerm || filterSecteur ? 'Essayez de modifier vos critères de recherche' : 'Ajoutez votre première entreprise pour commencer !'}
+              </p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {entreprises.map((entreprise, index) => {
+            {filteredEntreprises.map((entreprise, index) => {
               const candidaturesCount = getCandidaturesCount(entreprise.nom);
               
               return (
-                <Card 
-                  key={entreprise.id} 
-                  className="animate-fade-in hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 transform"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                  onClick={() => handleCardClick(entreprise.id)}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{entreprise.nom}</CardTitle>
-                        <p className="text-sm text-gray-600">{entreprise.secteur || 'Secteur non défini'}</p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="text-sm font-medium">4.5</span>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {entreprise.description || 'Aucune description disponible'}
-                      </p>
-                      
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        {entreprise.taille && (
-                          <div className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {entreprise.taille}
-                          </div>
-                        )}
-                        {entreprise.localisation && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            {entreprise.localisation}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <span className="text-sm text-gray-600">
-                          {candidaturesCount} candidature(s)
-                        </span>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCardClick(entreprise.id);
-                          }}
-                        >
-                          Voir détails
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <EntrepriseCard
+                  key={entreprise.id}
+                  entreprise={entreprise}
+                  candidaturesCount={candidaturesCount}
+                  onCardClick={handleCardClick}
+                  priority={candidaturesCount > 2 ? 'Haute' : candidaturesCount > 0 ? 'Moyenne' : 'Faible'}
+                  chiffreAffaires="10M€ - 50M€"
+                  typeContrat="CDI"
+                />
               );
             })}
           </div>
