@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Filter, Search, MoreHorizontal, Eye, Edit } from 'lucide-react';
+import { Filter, Search, MoreHorizontal, Eye, Edit, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AddCandidatureDialog } from '@/components/candidatures/AddCandidatureDialog';
+import { CandidatureActions } from '@/components/candidatures/CandidatureActions';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
