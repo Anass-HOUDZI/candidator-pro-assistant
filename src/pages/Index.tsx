@@ -77,15 +77,7 @@ const Index = () => {
       <div className="space-y-8 bg-gray-50 min-h-screen">
         {/* Header simplifié */}
         <div className="animate-fade-in">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-600 to-purple-700 p-8 text-white shadow-lg">
-            <div className="relative z-10">
-              <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-              <p className="text-primary-100 text-lg">
-                Suivez vos performances et optimisez votre recherche d'emploi
-              </p>
-            </div>
-            <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          </div>
+          
         </div>
 
         {/* Métriques principales */}
