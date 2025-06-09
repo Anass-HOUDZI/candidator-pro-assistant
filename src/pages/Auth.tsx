@@ -215,13 +215,13 @@ const Auth = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" disabled={loading} className="w-full text-sky-50 bg-indigo-800 hover:bg-indigo-700">
                 {loading ? 'Chargement...' : isLogin ? 'Se connecter' : "S'inscrire"}
               </Button>
             </form>
 
             <div className="mt-6 text-center">
-              <button onClick={() => setIsLogin(!isLogin)} className="text-primary-600 hover:text-primary-500 text-sm">
+              <button onClick={() => setIsLogin(!isLogin)} className="text-sm text-primary-900">
                 {isLogin ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
               </button>
             </div>
