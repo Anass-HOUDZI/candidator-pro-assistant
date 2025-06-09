@@ -11,7 +11,8 @@ import {
   Mail,
   CheckCircle,
   X,
-  Target
+  Target,
+  ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -182,6 +183,14 @@ export const AlertsPanel: React.FC = () => {
     setAlerts(prev => prev.filter(alert => alert.id !== alertId));
   };
 
+  const handleViewAllNotifications = () => {
+    toast({
+      title: "Notifications complètes",
+      description: "Affichage de toutes les notifications dans le panneau principal",
+    });
+    // You can add navigation logic here if needed
+  };
+
   if (loading) {
     return (
       <Card className="animate-pulse">
@@ -202,31 +211,31 @@ export const AlertsPanel: React.FC = () => {
   const urgentAlerts = alerts.filter(a => a.type === 'urgent').length;
 
   return (
-    <Card className="animate-fade-in shadow-xl border-0 bg-gradient-to-br from-white to-orange-50/30 hover:shadow-2xl transition-all duration-300">
-      <CardHeader className="pb-4">
+    <Card className="animate-fade-in shadow-sm border border-gray-100 bg-white hover:shadow-md transition-all duration-300">
+      <CardHeader className="pb-4 border-b border-gray-50">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <AlertTriangle className="h-6 w-6 text-orange-500" />
+          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-orange-500" />
             Alertes & Notifications
           </CardTitle>
           {urgentAlerts > 0 && (
-            <Badge className="bg-red-100 text-red-800 font-medium px-3 py-1">
+            <Badge className="bg-red-50 text-red-700 font-medium px-2 py-1 text-xs border border-red-200">
               {urgentAlerts} urgent{urgentAlerts > 1 ? 's' : ''}
             </Badge>
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 p-4">
         {alerts.length > 0 ? alerts.map((alert, index) => {
           const config = getAlertConfig(alert.type);
           return (
             <div
               key={alert.id}
               className={cn(
-                "relative p-4 border-l-4 rounded-r-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fade-in",
+                "relative p-3 border-l-3 rounded-r-lg transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5 animate-fade-in",
                 config.color
               )}
-              style={{ animationDelay: `${index * 150}ms` }}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3 flex-1">
@@ -234,26 +243,26 @@ export const AlertsPanel: React.FC = () => {
                     {alert.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h4 className="text-sm font-semibold text-gray-900">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h4 className="text-sm font-medium text-gray-900">
                         {alert.title}
                       </h4>
                       <Badge className={cn("text-xs font-medium", config.badgeColor)}>
                         {alert.type}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-700 mb-3 leading-relaxed">
+                    <p className="text-sm text-gray-600 mb-2 leading-relaxed">
                       {alert.message}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500 font-medium">
+                      <span className="text-xs text-gray-500">
                         Il y a {alert.time}
                       </span>
                       {alert.action && (
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="text-xs h-7 font-medium hover:scale-105 transition-transform duration-200"
+                          className="text-xs h-6 px-2 text-gray-600 hover:text-gray-900 border-gray-200 hover:border-gray-300"
                         >
                           {alert.action}
                         </Button>
@@ -265,29 +274,31 @@ export const AlertsPanel: React.FC = () => {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => removeAlert(alert.id)}
-                  className="text-gray-400 hover:text-gray-600 p-1 h-auto hover:bg-white/50 rounded-full"
+                  className="text-gray-400 hover:text-gray-600 p-1 h-auto hover:bg-gray-50 rounded-md"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </Button>
               </div>
             </div>
           );
         }) : (
-          <div className="text-center py-12">
-            <CheckCircle className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium text-gray-500 mb-2">Tout est sous contrôle!</p>
+          <div className="text-center py-8">
+            <CheckCircle className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+            <p className="text-base font-medium text-gray-500 mb-1">Tout est sous contrôle!</p>
             <p className="text-sm text-gray-400">Aucune alerte pour le moment</p>
           </div>
         )}
         
         {alerts.length > 0 && (
-          <div className="pt-4 border-t border-gray-200">
+          <div className="pt-3 border-t border-gray-100">
             <Button 
-              variant="outline" 
-              className="w-full font-medium hover:bg-orange-50 hover:border-orange-200 transition-all duration-200" 
+              variant="ghost" 
+              className="w-full font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 group" 
               size="sm"
+              onClick={handleViewAllNotifications}
             >
               Voir toutes les notifications
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
             </Button>
           </div>
         )}

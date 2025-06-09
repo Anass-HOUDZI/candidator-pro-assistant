@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TrendingUp, TrendingDown, Minus, Briefcase, Users, Target, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,11 +17,11 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, trend, ic
   const getTrendIcon = () => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className="h-4 w-4 text-emerald-500" />;
+        return <TrendingUp className="h-4 w-4 text-emerald-600" />;
       case 'down':
         return <TrendingDown className="h-4 w-4 text-red-500" />;
       default:
-        return <Minus className="h-4 w-4 text-gray-500" />;
+        return <Minus className="h-4 w-4 text-gray-400" />;
     }
   };
 
@@ -31,22 +30,22 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, trend, ic
       case 'up':
         return 'text-emerald-600';
       case 'down':
-        return 'text-red-600';
+        return 'text-red-500';
       default:
-        return 'text-gray-600';
+        return 'text-gray-500';
     }
   };
 
   if (isLoading) {
     return (
-      <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50">
+      <Card className="relative overflow-hidden border border-gray-100 shadow-sm bg-white">
         <CardContent className="p-6">
           <div className="animate-pulse">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
+              <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
               <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-16"></div>
+                <div className="h-3 bg-gray-200 rounded w-20 mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-12"></div>
               </div>
             </div>
           </div>
@@ -56,22 +55,16 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, trend, ic
   }
 
   return (
-    <Card className="relative overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-2 group border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm">
-      <div className={cn("absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r", 
-        color === 'bg-blue-500' ? 'from-blue-400 to-blue-600' :
-        color === 'bg-green-500' ? 'from-emerald-400 to-emerald-600' :
-        color === 'bg-purple-500' ? 'from-purple-400 to-purple-600' :
-        'from-orange-400 to-orange-600'
-      )} />
+    <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-md group border border-gray-100 shadow-sm bg-white">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className={cn(
-              "p-3 rounded-2xl transition-all duration-300 group-hover:scale-110 shadow-lg",
-              color === 'bg-blue-500' ? 'bg-gradient-to-br from-blue-100 to-blue-200' :
-              color === 'bg-green-500' ? 'bg-gradient-to-br from-emerald-100 to-emerald-200' :
-              color === 'bg-purple-500' ? 'bg-gradient-to-br from-purple-100 to-purple-200' :
-              'bg-gradient-to-br from-orange-100 to-orange-200'
+              "p-2.5 rounded-xl transition-all duration-300 group-hover:scale-105",
+              color === 'bg-blue-500' ? 'bg-blue-50 border border-blue-100' :
+              color === 'bg-green-500' ? 'bg-emerald-50 border border-emerald-100' :
+              color === 'bg-purple-500' ? 'bg-purple-50 border border-purple-100' :
+              'bg-orange-50 border border-orange-100'
             )}>
               <div className={cn(
                 "transition-colors duration-300",
@@ -85,17 +78,17 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, trend, ic
             </div>
             <div>
               <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-              <p className="text-3xl font-bold text-gray-900 tracking-tight">{value}</p>
+              <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
             </div>
           </div>
           <div className="flex flex-col items-end">
-            <div className="flex items-center space-x-1.5 mb-1">
+            <div className="flex items-center space-x-1 mb-1">
               {getTrendIcon()}
               <span className={cn("text-sm font-semibold", getTrendColor())}>
                 {Math.abs(change)}%
               </span>
             </div>
-            <span className="text-xs text-gray-500 font-medium">vs mois dernier</span>
+            <span className="text-xs text-gray-500">vs période précédente</span>
           </div>
         </div>
       </CardContent>
@@ -137,7 +130,7 @@ export const MetricsCards: React.FC<MetricsCardsProps> = ({
       value: candidatures,
       change: getChangePercentage(candidatures),
       trend: getTrend(getChangePercentage(candidatures)),
-      icon: <Briefcase className="h-6 w-6" />,
+      icon: <Briefcase className="h-5 w-5" />,
       color: 'bg-blue-500'
     },
     {
@@ -145,7 +138,7 @@ export const MetricsCards: React.FC<MetricsCardsProps> = ({
       value: entretiens,
       change: getChangePercentage(entretiens),
       trend: getTrend(getChangePercentage(entretiens)),
-      icon: <Users className="h-6 w-6" />,
+      icon: <Users className="h-5 w-5" />,
       color: 'bg-green-500'
     },
     {
@@ -153,7 +146,7 @@ export const MetricsCards: React.FC<MetricsCardsProps> = ({
       value: `${tauxReponse}%`,
       change: getChangePercentage(tauxReponse),
       trend: getTrend(getChangePercentage(tauxReponse)),
-      icon: <Target className="h-6 w-6" />,
+      icon: <Target className="h-5 w-5" />,
       color: 'bg-purple-500'
     },
     {
@@ -161,7 +154,7 @@ export const MetricsCards: React.FC<MetricsCardsProps> = ({
       value: offres,
       change: getChangePercentage(offres),
       trend: getTrend(getChangePercentage(offres)),
-      icon: <CheckCircle className="h-6 w-6" />,
+      icon: <CheckCircle className="h-5 w-5" />,
       color: 'bg-orange-500'
     }
   ];
@@ -169,7 +162,7 @@ export const MetricsCards: React.FC<MetricsCardsProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {metrics.map((metric, index) => (
-        <div key={metric.title} className="animate-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
+        <div key={metric.title} className="animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
           <MetricCard {...metric} isLoading={isLoading} />
         </div>
       ))}
