@@ -6,9 +6,10 @@ import { RecentApplications } from '@/components/dashboard/RecentApplications';
 import { AlertsPanel } from '@/components/dashboard/AlertsPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
 const Index = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [dashboardData, setDashboardData] = useState({
     candidatures: 0,
     entretiens: 0,
@@ -21,40 +22,35 @@ const Index = () => {
     }
   });
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     fetchDashboardData();
   }, []);
-
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) {
         setIsLoading(false);
         return;
       }
 
       // Récupérer les candidatures
-      const { data: candidatures } = await supabase
-        .from('candidatures')
-        .select('*')
-        .eq('user_id', user.id);
+      const {
+        data: candidatures
+      } = await supabase.from('candidatures').select('*').eq('user_id', user.id);
 
       // Récupérer les objectifs de l'utilisateur
-      const { data: objectifs } = await supabase
-        .from('user_objectives')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('mois_objectif', new Date().toISOString().slice(0, 7) + '-01')
-        .maybeSingle();
-
+      const {
+        data: objectifs
+      } = await supabase.from('user_objectives').select('*').eq('user_id', user.id).eq('mois_objectif', new Date().toISOString().slice(0, 7) + '-01').maybeSingle();
       const totalCandidatures = candidatures?.length || 0;
       const entretiens = candidatures?.filter(c => c.statut === 'Entretien')?.length || 0;
       const offres = candidatures?.filter(c => c.statut === 'Offre reçue')?.length || 0;
-      const tauxReponse = totalCandidatures > 0 ? Math.round((entretiens / totalCandidatures) * 100) : 0;
-
+      const tauxReponse = totalCandidatures > 0 ? Math.round(entretiens / totalCandidatures * 100) : 0;
       setDashboardData({
         candidatures: totalCandidatures,
         entretiens,
@@ -66,7 +62,6 @@ const Index = () => {
           tauxReponse: objectifs?.objectif_taux_reponse || 40
         }
       });
-
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -78,17 +73,13 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-
-  return (
-    <AppLayout>
+  return <AppLayout>
       <div className="space-y-8 bg-gray-50 min-h-screen">
         {/* Header simplifié */}
         <div className="animate-fade-in">
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-600 to-purple-700 p-8 text-white shadow-lg">
             <div className="relative z-10">
-              <h1 className="text-3xl font-bold mb-2">
-                Dashboard de Candidatures
-              </h1>
+              <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
               <p className="text-primary-100 text-lg">
                 Suivez vos performances et optimisez votre recherche d'emploi
               </p>
@@ -98,21 +89,19 @@ const Index = () => {
         </div>
 
         {/* Métriques principales */}
-        <MetricsCards 
-          candidatures={dashboardData.candidatures}
-          entretiens={dashboardData.entretiens} 
-          offres={dashboardData.offres}
-          tauxReponse={dashboardData.tauxReponse}
-          isLoading={isLoading}
-        />
+        <MetricsCards candidatures={dashboardData.candidatures} entretiens={dashboardData.entretiens} offres={dashboardData.offres} tauxReponse={dashboardData.tauxReponse} isLoading={isLoading} />
 
         {/* Graphiques */}
-        <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+        <div className="animate-fade-in" style={{
+        animationDelay: '200ms'
+      }}>
           <CandidaturesChart />
         </div>
 
         {/* Grille principale */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style={{ animationDelay: '300ms' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style={{
+        animationDelay: '300ms'
+      }}>
           {/* Candidatures récentes - 2/3 de la largeur */}
           <div className="lg:col-span-2">
             <RecentApplications />
@@ -125,7 +114,9 @@ const Index = () => {
         </div>
 
         {/* Footer insights simplifié */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 animate-fade-in" style={{ animationDelay: '400ms' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 animate-fade-in" style={{
+        animationDelay: '400ms'
+      }}>
           <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
             <div className="flex items-center mb-4">
               <div className="p-2 bg-primary-50 rounded-lg">
@@ -183,13 +174,13 @@ const Index = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Objectif candidatures:</span>
                 <span className="font-semibold text-gray-900">
-                  {Math.round((dashboardData.candidatures / dashboardData.objectifs.candidatures) * 100)}%
+                  {Math.round(dashboardData.candidatures / dashboardData.objectifs.candidatures * 100)}%
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Objectif entretiens:</span>
                 <span className="font-semibold text-gray-900">
-                  {Math.round((dashboardData.entretiens / dashboardData.objectifs.entretiens) * 100)}%
+                  {Math.round(dashboardData.entretiens / dashboardData.objectifs.entretiens * 100)}%
                 </span>
               </div>
               <div className="flex justify-between">
@@ -202,8 +193,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Index;
