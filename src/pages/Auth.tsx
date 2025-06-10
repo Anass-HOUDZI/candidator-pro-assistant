@@ -179,7 +179,7 @@ const Auth = () => {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
+                
               </div>
               
             </div>
