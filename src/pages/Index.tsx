@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { MetricsCards } from '@/components/dashboard/MetricsCards';
@@ -6,10 +7,9 @@ import { RecentApplications } from '@/components/dashboard/RecentApplications';
 import { AlertsPanel } from '@/components/dashboard/AlertsPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
 const Index = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [dashboardData, setDashboardData] = useState({
     candidatures: 0,
     entretiens: 0,
@@ -22,35 +22,40 @@ const Index = () => {
     }
   });
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
+      
       if (!user) {
         setIsLoading(false);
         return;
       }
 
       // Récupérer les candidatures
-      const {
-        data: candidatures
-      } = await supabase.from('candidatures').select('*').eq('user_id', user.id);
+      const { data: candidatures } = await supabase
+        .from('candidatures')
+        .select('*')
+        .eq('user_id', user.id);
 
       // Récupérer les objectifs de l'utilisateur
-      const {
-        data: objectifs
-      } = await supabase.from('user_objectives').select('*').eq('user_id', user.id).eq('mois_objectif', new Date().toISOString().slice(0, 7) + '-01').maybeSingle();
+      const { data: objectifs } = await supabase
+        .from('user_objectives')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('mois_objectif', new Date().toISOString().slice(0, 7) + '-01')
+        .maybeSingle();
+
       const totalCandidatures = candidatures?.length || 0;
       const entretiens = candidatures?.filter(c => c.statut === 'Entretien')?.length || 0;
       const offres = candidatures?.filter(c => c.statut === 'Offre reçue')?.length || 0;
-      const tauxReponse = totalCandidatures > 0 ? Math.round(entretiens / totalCandidatures * 100) : 0;
+      const tauxReponse = totalCandidatures > 0 ? Math.round((entretiens / totalCandidatures) * 100) : 0;
+
       setDashboardData({
         candidatures: totalCandidatures,
         entretiens,
@@ -73,7 +78,22 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-  return <AppLayout>
+
+  // Calculer les pourcentages de progression
+  const progressionCandidatures = dashboardData.objectifs.candidatures > 0 
+    ? Math.round((dashboardData.candidatures / dashboardData.objectifs.candidatures) * 100) 
+    : 0;
+  
+  const progressionEntretiens = dashboardData.objectifs.entretiens > 0 
+    ? Math.round((dashboardData.entretiens / dashboardData.objectifs.entretiens) * 100) 
+    : 0;
+
+  const progressionTauxReponse = dashboardData.objectifs.tauxReponse > 0
+    ? Math.round((dashboardData.tauxReponse / dashboardData.objectifs.tauxReponse) * 100)
+    : 0;
+
+  return (
+    <AppLayout>
       <div className="space-y-8 bg-gray-50 min-h-screen">
         {/* Header simplifié */}
         <div className="animate-fade-in">
@@ -81,19 +101,21 @@ const Index = () => {
         </div>
 
         {/* Métriques principales */}
-        <MetricsCards candidatures={dashboardData.candidatures} entretiens={dashboardData.entretiens} offres={dashboardData.offres} tauxReponse={dashboardData.tauxReponse} isLoading={isLoading} />
+        <MetricsCards 
+          candidatures={dashboardData.candidatures} 
+          entretiens={dashboardData.entretiens} 
+          offres={dashboardData.offres} 
+          tauxReponse={dashboardData.tauxReponse} 
+          isLoading={isLoading} 
+        />
 
         {/* Graphiques */}
-        <div className="animate-fade-in" style={{
-        animationDelay: '200ms'
-      }}>
+        <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
           <CandidaturesChart />
         </div>
 
         {/* Grille principale */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style={{
-        animationDelay: '300ms'
-      }}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style={{ animationDelay: '300ms' }}>
           {/* Candidatures récentes - 2/3 de la largeur */}
           <div className="lg:col-span-2">
             <RecentApplications />
@@ -105,33 +127,33 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Footer insights simplifié */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 animate-fade-in" style={{
-        animationDelay: '400ms'
-      }}>
+        {/* Footer insights amélioré */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 animate-fade-in" style={{ animationDelay: '400ms' }}>
+          {/* Objectifs */}
           <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
             <div className="flex items-center mb-4">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <span className="text-primary-600 text-xl">🎯</span>
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <span className="text-blue-600 text-xl">🎯</span>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 ml-3">Objectifs</h3>
             </div>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex justify-between">
-                <span>Candidatures:</span>
-                <span className="font-medium">{dashboardData.objectifs.candidatures}/mois</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Taux de réponse:</span>
-                <span className="font-medium">{dashboardData.objectifs.tauxReponse}%</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Entretiens:</span>
-                <span className="font-medium">{dashboardData.objectifs.entretiens}/mois</span>
-              </li>
-            </ul>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Candidatures:</span>
+                <span className="font-semibold text-gray-900">{dashboardData.objectifs.candidatures}/mois</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Taux de réponse:</span>
+                <span className="font-semibold text-gray-900">{dashboardData.objectifs.tauxReponse}%</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Entretiens:</span>
+                <span className="font-semibold text-gray-900">{dashboardData.objectifs.entretiens}/mois</span>
+              </div>
+            </div>
           </div>
           
+          {/* Performance */}
           <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
             <div className="flex items-center mb-4">
               <div className="p-2 bg-emerald-50 rounded-lg">
@@ -139,22 +161,23 @@ const Index = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 ml-3">Performance</h3>
             </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Candidatures:</span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Candidatures:</span>
                 <span className="font-semibold text-gray-900">{dashboardData.candidatures}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Taux de réponse:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Taux de réponse:</span>
                 <span className="font-semibold text-gray-900">{dashboardData.tauxReponse}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Entretiens:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Entretiens:</span>
                 <span className="font-semibold text-gray-900">{dashboardData.entretiens}</span>
               </div>
             </div>
           </div>
           
+          {/* Progression */}
           <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
             <div className="flex items-center mb-4">
               <div className="p-2 bg-orange-50 rounded-lg">
@@ -162,29 +185,31 @@ const Index = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 ml-3">Progression</h3>
             </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Objectif candidatures:</span>
-                <span className="font-semibold text-gray-900">
-                  {Math.round(dashboardData.candidatures / dashboardData.objectifs.candidatures * 100)}%
-                </span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Objectif candidatures:</span>
+                <span className="font-semibold text-gray-900">{progressionCandidatures}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Objectif entretiens:</span>
-                <span className="font-semibold text-gray-900">
-                  {Math.round(dashboardData.entretiens / dashboardData.objectifs.entretiens * 100)}%
-                </span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Objectif entretiens:</span>
+                <span className="font-semibold text-gray-900">{progressionEntretiens}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Statut:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Objectif taux réponse:</span>
+                <span className="font-semibold text-gray-900">{progressionTauxReponse}%</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Statut:</span>
                 <span className="font-semibold text-gray-900">
-                  {dashboardData.candidatures > 0 ? '📈 Actif' : '📋 Démarrer'}
+                  {dashboardData.candidatures > 0 ? '📈 Actif' : '📋 Inactif'}
                 </span>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </AppLayout>;
+    </AppLayout>
+  );
 };
+
 export default Index;
