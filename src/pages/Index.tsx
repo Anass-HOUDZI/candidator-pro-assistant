@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { MetricsCards } from '@/components/dashboard/MetricsCards';
@@ -9,9 +8,10 @@ import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
 const Index = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [dashboardData, setDashboardData] = useState({
     candidatures: 0,
     entretiens: 0,
@@ -25,40 +25,35 @@ const Index = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState({});
-
   useEffect(() => {
     fetchDashboardData();
   }, [filters]);
-
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) {
         setIsLoading(false);
         return;
       }
 
       // Récupérer les candidatures
-      const { data: candidatures } = await supabase
-        .from('candidatures')
-        .select('*')
-        .eq('user_id', user.id);
+      const {
+        data: candidatures
+      } = await supabase.from('candidatures').select('*').eq('user_id', user.id);
 
       // Récupérer les objectifs de l'utilisateur
-      const { data: objectifs } = await supabase
-        .from('user_objectives')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('mois_objectif', new Date().toISOString().slice(0, 7) + '-01')
-        .maybeSingle();
-
+      const {
+        data: objectifs
+      } = await supabase.from('user_objectives').select('*').eq('user_id', user.id).eq('mois_objectif', new Date().toISOString().slice(0, 7) + '-01').maybeSingle();
       const totalCandidatures = candidatures?.length || 0;
       const entretiens = candidatures?.filter(c => c.statut === 'Entretien')?.length || 0;
       const offres = candidatures?.filter(c => c.statut === 'Offre reçue')?.length || 0;
-      const tauxReponse = totalCandidatures > 0 ? Math.round((entretiens / totalCandidatures) * 100) : 0;
-
+      const tauxReponse = totalCandidatures > 0 ? Math.round(entretiens / totalCandidatures * 100) : 0;
       setDashboardData({
         candidatures: totalCandidatures,
         entretiens,
@@ -81,76 +76,55 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-
   const handleFilterChange = (newFilters: any) => {
     setFilters(newFilters);
   };
-
   const handleExport = () => {
     toast({
       title: "Export en cours",
-      description: "Votre rapport est en cours de génération...",
+      description: "Votre rapport est en cours de génération..."
     });
     // Logique d'export à implémenter
   };
 
   // Calculer les pourcentages de progression
-  const progressionCandidatures = dashboardData.objectifs.candidatures > 0 
-    ? Math.round((dashboardData.candidatures / dashboardData.objectifs.candidatures) * 100) 
-    : 0;
-  
-  const progressionEntretiens = dashboardData.objectifs.entretiens > 0 
-    ? Math.round((dashboardData.entretiens / dashboardData.objectifs.entretiens) * 100) 
-    : 0;
-
-  const progressionTauxReponse = dashboardData.objectifs.tauxReponse > 0
-    ? Math.round((dashboardData.tauxReponse / dashboardData.objectifs.tauxReponse) * 100)
-    : 0;
-
-  return (
-    <AppLayout>
+  const progressionCandidatures = dashboardData.objectifs.candidatures > 0 ? Math.round(dashboardData.candidatures / dashboardData.objectifs.candidatures * 100) : 0;
+  const progressionEntretiens = dashboardData.objectifs.entretiens > 0 ? Math.round(dashboardData.entretiens / dashboardData.objectifs.entretiens * 100) : 0;
+  const progressionTauxReponse = dashboardData.objectifs.tauxReponse > 0 ? Math.round(dashboardData.tauxReponse / dashboardData.objectifs.tauxReponse * 100) : 0;
+  return <AppLayout>
       <div className="space-y-8 min-h-screen">
         {/* Background avec dégradé moderne */}
         <div className="fixed inset-0 bg-gradient-to-br from-gray-25 via-blue-25/30 to-purple-25/20 -z-10" />
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/20 via-transparent to-purple-100/20 -z-10" />
 
         {/* Header amélioré avec logo animé */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-600 via-blue-600 to-purple-600 p-8 text-white animate-fade-in shadow-large">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="relative z-10 flex items-center gap-4">
-            <AnimatedLogo size="lg" />
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Bonjour ! 👋</h1>
-              <p className="text-lg opacity-90">Voici un aperçu de vos activités de recherche d'emploi</p>
-            </div>
-          </div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
-        </div>
+        
 
         {/* Filtres et options d'export */}
-        <div className="animate-fade-in" style={{ animationDelay: '50ms' }}>
+        <div className="animate-fade-in" style={{
+        animationDelay: '50ms'
+      }}>
           <DashboardFilters onFilterChange={handleFilterChange} onExport={handleExport} />
         </div>
 
         {/* Métriques principales avec cartes 3D améliorées */}
-        <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
-          <MetricsCards 
-            candidatures={dashboardData.candidatures} 
-            entretiens={dashboardData.entretiens} 
-            offres={dashboardData.offres} 
-            tauxReponse={dashboardData.tauxReponse} 
-            isLoading={isLoading} 
-          />
+        <div className="animate-fade-in" style={{
+        animationDelay: '100ms'
+      }}>
+          <MetricsCards candidatures={dashboardData.candidatures} entretiens={dashboardData.entretiens} offres={dashboardData.offres} tauxReponse={dashboardData.tauxReponse} isLoading={isLoading} />
         </div>
 
         {/* Graphiques avec design amélioré */}
-        <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+        <div className="animate-fade-in" style={{
+        animationDelay: '200ms'
+      }}>
           <CandidaturesChart />
         </div>
 
         {/* Grille principale avec espacement amélioré */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style={{ animationDelay: '300ms' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style={{
+        animationDelay: '300ms'
+      }}>
           <div className="lg:col-span-2">
             <RecentApplications />
           </div>
@@ -161,7 +135,9 @@ const Index = () => {
         </div>
 
         {/* Cards d'objectifs, performance et progression avec effet 3D */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 animate-fade-in" style={{ animationDelay: '400ms' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 animate-fade-in" style={{
+        animationDelay: '400ms'
+      }}>
           {/* Objectifs avec design moderne et effet 3D */}
           <div className="group relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm p-6 shadow-large border border-gray-100/50 hover:shadow-xl transition-all duration-500 card-hover transform-gpu">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -233,10 +209,9 @@ const Index = () => {
                     <span className="font-bold text-gray-900">{progressionCandidatures}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div 
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-1000 ease-out transform-gpu" 
-                      style={{ width: `${Math.min(progressionCandidatures, 100)}%` }}
-                    ></div>
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-1000 ease-out transform-gpu" style={{
+                    width: `${Math.min(progressionCandidatures, 100)}%`
+                  }}></div>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -245,10 +220,9 @@ const Index = () => {
                     <span className="font-bold text-gray-900">{progressionEntretiens}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div 
-                      className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-1000 ease-out transform-gpu" 
-                      style={{ width: `${Math.min(progressionEntretiens, 100)}%` }}
-                    ></div>
+                    <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-1000 ease-out transform-gpu" style={{
+                    width: `${Math.min(progressionEntretiens, 100)}%`
+                  }}></div>
                   </div>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50/80 rounded-lg backdrop-blur-sm transition-all duration-300 hover:bg-gray-100/80">
@@ -262,8 +236,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Index;
