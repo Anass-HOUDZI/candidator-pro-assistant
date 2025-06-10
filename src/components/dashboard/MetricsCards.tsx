@@ -1,171 +1,116 @@
+
 import React from 'react';
-import { TrendingUp, TrendingDown, Minus, Briefcase, Users, Target, CheckCircle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-
-interface MetricCardProps {
-  title: string;
-  value: string | number;
-  change: number;
-  trend: 'up' | 'down' | 'neutral';
-  icon: React.ReactNode;
-  color: string;
-  isLoading?: boolean;
-}
-
-const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, trend, icon, color, isLoading = false }) => {
-  const getTrendIcon = () => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUp className="h-4 w-4 text-emerald-600" />;
-      case 'down':
-        return <TrendingDown className="h-4 w-4 text-red-500" />;
-      default:
-        return <Minus className="h-4 w-4 text-gray-400" />;
-    }
-  };
-
-  const getTrendColor = () => {
-    switch (trend) {
-      case 'up':
-        return 'text-emerald-600';
-      case 'down':
-        return 'text-red-500';
-      default:
-        return 'text-gray-500';
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <Card className="relative overflow-hidden border border-gray-100 shadow-sm bg-white">
-        <CardContent className="p-6">
-          <div className="animate-pulse">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
-              <div className="flex-1">
-                <div className="h-3 bg-gray-200 rounded w-20 mb-2"></div>
-                <div className="h-6 bg-gray-200 rounded w-12"></div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-md group border border-gray-100 shadow-sm bg-white">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className={cn(
-              "p-2.5 rounded-xl transition-all duration-300 group-hover:scale-105",
-              color === 'bg-blue-500' ? 'bg-blue-50 border border-blue-100' :
-              color === 'bg-green-500' ? 'bg-emerald-50 border border-emerald-100' :
-              color === 'bg-purple-500' ? 'bg-purple-50 border border-purple-100' :
-              'bg-orange-50 border border-orange-100'
-            )}>
-              <div className={cn(
-                "transition-colors duration-300",
-                color === 'bg-blue-500' ? 'text-blue-600' :
-                color === 'bg-green-500' ? 'text-emerald-600' :
-                color === 'bg-purple-500' ? 'text-purple-600' :
-                'text-orange-600'
-              )}>
-                {icon}
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-              <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end">
-            <div className="flex items-center space-x-1 mb-1">
-              {getTrendIcon()}
-              <span className={cn("text-sm font-semibold", getTrendColor())}>
-                {Math.abs(change)}%
-              </span>
-            </div>
-            <span className="text-xs text-gray-500">vs période précédente</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { TrendingUp, TrendingDown, Users, Calendar, Award, Target } from 'lucide-react';
 
 interface MetricsCardsProps {
   candidatures: number;
   entretiens: number;
   offres: number;
   tauxReponse: number;
-  isLoading?: boolean;
+  isLoading: boolean;
 }
 
-export const MetricsCards: React.FC<MetricsCardsProps> = ({ 
-  candidatures, 
-  entretiens, 
-  offres, 
-  tauxReponse,
-  isLoading = false 
-}) => {
-  // Calcul des changements (simulation basée sur les données actuelles)
-  const getChangePercentage = (current: number) => {
-    if (current === 0) return 0;
-    // Simulation d'une variation basée sur la valeur actuelle
-    return Math.floor(Math.random() * 20) - 10; // Entre -10% et +10%
-  };
-
-  const getTrend = (change: number): 'up' | 'down' | 'neutral' => {
-    if (change > 0) return 'up';
-    if (change < 0) return 'down';
-    return 'neutral';
-  };
-
+export const MetricsCards = ({ candidatures, entretiens, offres, tauxReponse, isLoading }: MetricsCardsProps) => {
   const metrics = [
     {
-      title: 'Candidatures Envoyées',
+      title: "Candidatures",
       value: candidatures,
-      change: getChangePercentage(candidatures),
-      trend: getTrend(getChangePercentage(candidatures)),
-      icon: <Briefcase className="h-5 w-5" />,
-      color: 'bg-blue-500'
+      icon: Users,
+      gradient: "from-blue-500 to-blue-600",
+      bgGradient: "from-blue-50/50 to-blue-100/30",
+      change: "+12% vs mois dernier",
+      isPositive: true
     },
     {
-      title: 'Entretiens Planifiés',
+      title: "Entretiens",
       value: entretiens,
-      change: getChangePercentage(entretiens),
-      trend: getTrend(getChangePercentage(entretiens)),
-      icon: <Users className="h-5 w-5" />,
-      color: 'bg-green-500'
+      icon: Calendar,
+      gradient: "from-emerald-500 to-emerald-600",
+      bgGradient: "from-emerald-50/50 to-emerald-100/30",
+      change: "+8% vs mois dernier",
+      isPositive: true
     },
     {
-      title: 'Taux de Réponse',
-      value: `${tauxReponse}%`,
-      change: getChangePercentage(tauxReponse),
-      trend: getTrend(getChangePercentage(tauxReponse)),
-      icon: <Target className="h-5 w-5" />,
-      color: 'bg-purple-500'
-    },
-    {
-      title: 'Offres Reçues',
+      title: "Offres reçues",
       value: offres,
-      change: getChangePercentage(offres),
-      trend: getTrend(getChangePercentage(offres)),
-      icon: <CheckCircle className="h-5 w-5" />,
-      color: 'bg-orange-500'
+      icon: Award,
+      gradient: "from-purple-500 to-purple-600",
+      bgGradient: "from-purple-50/50 to-purple-100/30",
+      change: "+15% vs mois dernier",
+      isPositive: true
+    },
+    {
+      title: "Taux de réponse",
+      value: `${tauxReponse}%`,
+      icon: Target,
+      gradient: "from-orange-500 to-orange-600",
+      bgGradient: "from-orange-50/50 to-orange-100/30",
+      change: "-2% vs mois dernier",
+      isPositive: false
     }
   ];
 
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i} className="p-6">
+            <Skeleton className="h-4 w-24 mb-2" />
+            <Skeleton className="h-8 w-16 mb-4" />
+            <Skeleton className="h-4 w-32" />
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {metrics.map((metric, index) => (
-        <div key={metric.title} className="animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-          <MetricCard {...metric} isLoading={isLoading} />
-        </div>
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {metrics.map((metric, index) => {
+        const IconComponent = metric.icon;
+        return (
+          <Card 
+            key={metric.title} 
+            className="group relative overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-100/50 shadow-large hover:shadow-xl transition-all duration-500 card-hover transform-gpu animate-scale-in"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            {/* Background gradient overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${metric.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+            
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+              <CardTitle className="text-sm font-medium text-gray-600 group-hover:text-gray-700 transition-colors duration-300">
+                {metric.title}
+              </CardTitle>
+              <div className={`p-2 rounded-lg bg-gradient-to-br ${metric.gradient} shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                <IconComponent className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            
+            <CardContent className="relative z-10">
+              <div className="text-2xl font-bold text-gray-900 mb-1 group-hover:scale-105 transition-transform duration-300">
+                {metric.value}
+              </div>
+              <div className="flex items-center text-xs text-gray-500">
+                {metric.isPositive ? (
+                  <TrendingUp className="h-3 w-3 text-emerald-500 mr-1" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 text-red-500 mr-1" />
+                )}
+                <span className={metric.isPositive ? 'text-emerald-600' : 'text-red-600'}>
+                  {metric.change}
+                </span>
+              </div>
+            </CardContent>
+            
+            {/* Subtle shimmer effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 };

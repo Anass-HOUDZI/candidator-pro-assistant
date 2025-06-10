@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,7 +19,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'sans': ['Inter', 'system-ui', 'sans-serif'],
+				'sans': ['Inter', 'Roboto', 'Open Sans', 'system-ui', 'sans-serif'],
 				'display': ['Cal Sans', 'Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
@@ -132,7 +131,9 @@ export default {
 			boxShadow: {
 				'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
 				'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-				'large': '0 10px 40px -10px rgba(0, 0, 0, 0.15)',
+				'large': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+				'xl': '0 20px 50px -12px rgba(0, 0, 0, 0.25)',
+				'3d': '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -215,6 +216,22 @@ export default {
 						transform: 'scale(1.05)',
 						filter: 'brightness(1.1)'
 					}
+				},
+				'glow': {
+					'0%, 100%': {
+						boxShadow: '0 0 20px rgba(37, 99, 235, 0.3)'
+					},
+					'50%': {
+						boxShadow: '0 0 30px rgba(37, 99, 235, 0.5)'
+					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0px)'
+					},
+					'50%': {
+						transform: 'translateY(-10px)'
+					}
 				}
 			},
 			animation: {
@@ -226,8 +243,13 @@ export default {
 				'pulse-soft': 'pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
 				'scale-in': 'scale-in 0.3s ease-out',
 				'shimmer': 'shimmer 2s infinite',
-				'logo-pulse': 'logo-pulse 3s ease-in-out infinite'
-			}
+				'logo-pulse': 'logo-pulse 3s ease-in-out infinite',
+				'glow': 'glow 2s ease-in-out infinite alternate',
+				'float': 'float 3s ease-in-out infinite'
+			},
+			backdropBlur: {
+				'xs': '2px',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
