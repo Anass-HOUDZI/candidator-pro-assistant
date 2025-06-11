@@ -375,6 +375,183 @@ export type Database = {
         }
         Relationships: []
       }
+      reflection_collaborators: {
+        Row: {
+          created_at: string
+          id: string
+          reflection_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reflection_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reflection_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_collaborators_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "reflections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reflection_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          parent_comment_id: string | null
+          reflection_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          reflection_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          reflection_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "reflection_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reflection_comments_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "reflections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reflection_reminders: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          message: string | null
+          reflection_id: string
+          reminder_type: string
+          scheduled_at: string
+          sent_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          message?: string | null
+          reflection_id: string
+          reminder_type: string
+          scheduled_at: string
+          sent_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          message?: string | null
+          reflection_id?: string
+          reminder_type?: string
+          scheduled_at?: string
+          sent_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_reminders_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "reflections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reflections: {
+        Row: {
+          candidature_id: string | null
+          content: string
+          created_at: string
+          due_date: string | null
+          id: string
+          metadata: Json | null
+          priority: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          candidature_id?: string | null
+          content: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          candidature_id?: string | null
+          content?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflections_candidature_id_fkey"
+            columns: ["candidature_id"]
+            isOneToOne: false
+            referencedRelation: "candidatures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_objectives: {
         Row: {
           created_at: string
