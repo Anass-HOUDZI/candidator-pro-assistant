@@ -30,7 +30,7 @@ export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: A
     type: 'note_candidature',
     status: 'en_cours',
     priority: 'moyenne',
-    candidature_id: '',
+    candidature_id: 'none',
     due_date: null as Date | null,
     tags: ''
   });
@@ -88,7 +88,7 @@ export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: A
           type: formData.type,
           status: formData.status,
           priority: formData.priority,
-          candidature_id: formData.candidature_id || null,
+          candidature_id: formData.candidature_id === 'none' ? null : formData.candidature_id,
           due_date: formData.due_date ? formData.due_date.toISOString() : null,
           tags: tagsArray.length > 0 ? tagsArray : null
         });
@@ -113,7 +113,7 @@ export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: A
           type: 'note_candidature',
           status: 'en_cours',
           priority: 'moyenne',
-          candidature_id: '',
+          candidature_id: 'none',
           due_date: null,
           tags: ''
         });
@@ -234,7 +234,7 @@ export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: A
                   <SelectValue placeholder="Sélectionner une candidature" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Aucune candidature</SelectItem>
+                  <SelectItem value="none">Aucune candidature</SelectItem>
                   {candidatures.map((candidature: any) => (
                     <SelectItem key={candidature.id} value={candidature.id}>
                       {candidature.poste} - {candidature.entreprise}
