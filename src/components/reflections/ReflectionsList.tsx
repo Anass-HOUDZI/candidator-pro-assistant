@@ -60,7 +60,8 @@ export const ReflectionsList = ({ reflections, isLoading, onRefresh }: Reflectio
       <div className="text-center py-12">
         <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucune réflexion</h3>
-        <p className="text-gray-600">Commencez par créer votre première réflexion</p>
+        <p className="text-gray-600 mb-4">Commencez par créer votre première réflexion</p>
+        <Button onClick={onRefresh}>Actualiser</Button>
       </div>
     );
   }
@@ -75,12 +76,12 @@ export const ReflectionsList = ({ reflections, isLoading, onRefresh }: Reflectio
                 <CardTitle className="text-lg mb-2">{reflection.title}</CardTitle>
                 <div className="flex flex-wrap gap-2 mb-2">
                   <Badge variant="outline" className="text-xs">
-                    {typeLabels[reflection.type]}
+                    {typeLabels[reflection.type] || reflection.type}
                   </Badge>
-                  <Badge className={`text-xs ${statusColors[reflection.status]}`}>
+                  <Badge className={`text-xs ${statusColors[reflection.status] || 'bg-gray-100 text-gray-800'}`}>
                     {reflection.status.replace('_', ' ')}
                   </Badge>
-                  <Badge className={`text-xs ${priorityColors[reflection.priority]}`}>
+                  <Badge className={`text-xs ${priorityColors[reflection.priority] || 'bg-gray-100 text-gray-800'}`}>
                     {reflection.priority}
                   </Badge>
                 </div>
@@ -118,18 +119,6 @@ export const ReflectionsList = ({ reflections, isLoading, onRefresh }: Reflectio
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     <span>{new Date(reflection.due_date).toLocaleDateString('fr-FR')}</span>
-                  </div>
-                )}
-                {reflection.reflection_comments?.length > 0 && (
-                  <div className="flex items-center gap-1">
-                    <MessageCircle className="h-3 w-3" />
-                    <span>{reflection.reflection_comments.length}</span>
-                  </div>
-                )}
-                {reflection.reflection_collaborators?.length > 0 && (
-                  <div className="flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    <span>{reflection.reflection_collaborators.length}</span>
                   </div>
                 )}
               </div>

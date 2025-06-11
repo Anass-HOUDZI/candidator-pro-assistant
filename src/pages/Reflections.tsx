@@ -33,17 +33,18 @@ const Reflections = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        console.log('No user found');
         setIsLoading(false);
         return;
       }
+
+      console.log('Fetching reflections for user:', user.id);
 
       let query = supabase
         .from('reflections')
         .select(`
           *,
-          candidatures(entreprise, poste),
-          reflection_collaborators(user_id, role),
-          reflection_comments(id, content, created_at)
+          candidatures(entreprise, poste)
         `)
         .eq('user_id', user.id);
 
@@ -68,10 +69,16 @@ const Reflections = () => {
           variant: "destructive"
         });
       } else {
+        console.log('Reflections fetched:', data);
         setReflections(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -80,10 +87,6 @@ const Reflections = () => {
   const handleReflectionAdded = () => {
     fetchReflections();
     setShowAddDialog(false);
-    toast({
-      title: "Succès",
-      description: "Réflexion ajoutée avec succès"
-    });
   };
 
   return (
