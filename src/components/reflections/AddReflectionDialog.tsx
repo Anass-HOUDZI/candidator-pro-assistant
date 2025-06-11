@@ -13,6 +13,8 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface AddReflectionDialogProps {
   open: boolean;
@@ -22,6 +24,7 @@ interface AddReflectionDialogProps {
 
 export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: AddReflectionDialogProps) => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
   const [candidatures, setCandidatures] = useState([]);
   const [formData, setFormData] = useState({
@@ -132,12 +135,18 @@ export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: A
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className={cn(
+        "max-w-2xl max-h-[90vh] overflow-y-auto",
+        isMobile && "mx-4 w-[calc(100vw-2rem)]"
+      )}>
         <DialogHeader>
-          <DialogTitle>Nouvelle Réflexion</DialogTitle>
+          <DialogTitle className="text-lg lg:text-xl">Nouvelle Réflexion</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
+          <div className={cn(
+            "grid gap-4",
+            isMobile ? "grid-cols-1" : "grid-cols-2"
+          )}>
             <div className="space-y-2">
               <Label htmlFor="title">Titre *</Label>
               <Input
@@ -171,12 +180,15 @@ export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: A
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               placeholder="Décrivez votre réflexion..."
-              rows={4}
+              rows={isMobile ? 3 : 4}
               required
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className={cn(
+            "grid gap-4",
+            isMobile ? "grid-cols-1" : "grid-cols-3"
+          )}>
             <div className="space-y-2">
               <Label htmlFor="status">Statut</Label>
               <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
@@ -220,6 +232,7 @@ export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: A
                     selected={formData.due_date}
                     onSelect={(date) => setFormData({ ...formData, due_date: date })}
                     locale={fr}
+                    className={cn("p-3 pointer-events-auto")}
                   />
                 </PopoverContent>
               </Popover>
@@ -255,7 +268,10 @@ export const AddReflectionDialog = ({ open, onOpenChange, onReflectionAdded }: A
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className={cn(
+            "flex gap-2 pt-4",
+            isMobile ? "flex-col" : "justify-end"
+          )}>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Annuler
             </Button>
