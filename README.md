@@ -115,4 +115,4 @@ Les contributions sont les bienvenues ! Pour contribuer à JobTracker, suivez ce
 Pour plus d'informations ou pour poser des questions sur le projet, vous pouvez contacter :
 
 - **Anass Houdzi** : anass.houdzi@gmail.com
-- **Lien du Projet** : [JobTracker sur GitHub](https://candidator-pro-assistant.lovable.app/)
+- **Lien du Projet** : [JobTracker](https://candidator-pro-assistant.lovable.app/)
