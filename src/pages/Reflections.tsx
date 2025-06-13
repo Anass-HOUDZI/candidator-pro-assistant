@@ -97,7 +97,9 @@ const Reflections = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Réflexions</h1>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary-600 via-purple-600 to-blue-600 bg-clip-text text-transparent font-display">
+              Réflexions
+            </h1>
             <p className="text-gray-600 mt-1 lg:mt-2 text-sm lg:text-base">
               Gérez vos notes, analyses et stratégies de recherche d'emploi
             </p>

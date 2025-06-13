@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -207,15 +208,18 @@ const Automation = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4 md:space-y-6 pb-20 md:pb-6">
+      <div className="space-y-4 md:space-y-6 pb-6">
         {/* Header */}
-        <div className="space-y-2 md:space-y-4">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary-600 via-purple-600 to-blue-600 bg-clip-text text-transparent font-display">
-            Automatisations
-          </h1>
-          <p className="text-sm md:text-base text-gray-600">
-            Automatisez vos tâches répétitives et gagnez du temps
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary-600 via-purple-600 to-blue-600 bg-clip-text text-transparent font-display">
+              Automatisations
+            </h1>
+            <p className="text-sm md:text-base text-gray-600">
+              Automatisez vos tâches répétitives et gagnez du temps
+            </p>
+          </div>
+          <AddAutomationDialog />
         </div>
 
         {/* Statistiques */}
@@ -353,11 +357,6 @@ const Automation = () => {
             )}
           </CardContent>
         </Card>
-
-        {/* Bouton flottant en bas pour mobile */}
-        <div className="fixed bottom-4 right-4 md:hidden z-50">
-          <AddAutomationDialog />
-        </div>
 
         <ConfigureAutomationDialog
           automation={configureAutomation}

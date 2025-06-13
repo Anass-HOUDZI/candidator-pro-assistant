@@ -73,19 +73,19 @@ export const AutomationCard: React.FC<AutomationCardProps> = ({
 
   return (
     <Card className="hover:shadow-md transition-all duration-200">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4 flex-1">
-            <div className="p-3 bg-gray-100 rounded-lg">
+      <CardContent className="p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row items-start gap-4">
+          <div className="flex items-start gap-4 flex-1 w-full sm:w-auto">
+            <div className="p-3 bg-gray-100 rounded-lg flex-shrink-0">
               <IconComponent className="h-6 w-6 text-gray-600" />
             </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="font-semibold text-gray-900">{automation.nom}</h3>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                <h3 className="font-semibold text-gray-900 truncate">{automation.nom}</h3>
                 <Badge 
                   variant={automation.actif ? "default" : "secondary"}
                   className={cn(
-                    "text-xs",
+                    "text-xs self-start sm:self-auto",
                     automation.actif ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                   )}
                 >
@@ -97,7 +97,7 @@ export const AutomationCard: React.FC<AutomationCardProps> = ({
                 {automation.description || 'Aucune description disponible'}
               </p>
               
-              <div className="flex items-center gap-4 text-sm text-gray-500">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500">
                 <div className="flex items-center gap-1">
                   {getFrequenceIcon(automation.frequence)}
                   <span className="capitalize">{automation.frequence || 'quotidien'}</span>
@@ -116,7 +116,7 @@ export const AutomationCard: React.FC<AutomationCardProps> = ({
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
             <Switch
               checked={automation.actif || false}
               onCheckedChange={() => onToggle(automation.id, automation.actif || false)}
@@ -127,7 +127,7 @@ export const AutomationCard: React.FC<AutomationCardProps> = ({
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {onEdit && (
