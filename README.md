@@ -1,6 +1,6 @@
 # JobTracker
 
-**JobTracker** est une application SaaS innovante conçue pour optimiser et simplifier la recherche d'emploi. Elle offre une suite complète d'outils pour suivre les candidatures, analyser les performances, et automatiser les tâches répétitives, le tout dans une interface utilisateur intuitive et responsive.
+**JobTracker** est une application SaaS conçue pour optimiser et simplifier la recherche d'emploi. Elle offre une suite complète d'outils pour suivre les candidatures, analyser les performances, et automatiser les tâches répétitives, le tout dans une interface utilisateur intuitive et responsive.
 
 ## Fonctionnalités Principales
 
