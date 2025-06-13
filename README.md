@@ -1,6 +1,3 @@
-
-Pour rédiger un README professionnel pour votre projet JobTracker, je vais structurer les informations de manière claire et détaillée, en mettant l'accent sur les fonctionnalités avancées, les technologies utilisées, et les instructions pour les développeurs et les utilisateurs. Voici une proposition de README :
-
 ### JobTracker
 
 **JobTracker** est une application SaaS innovante conçue pour optimiser et simplifier la recherche d'emploi. Elle offre une suite complète d'outils pour suivre les candidatures, analyser les performances, et automatiser les tâches répétitives, le tout dans une interface utilisateur intuitive et responsive.
@@ -251,7 +248,3 @@ Pour plus d'informations ou pour poser des questions sur le projet, vous pouvez 
 
 - **Anass Houdzi** : anass.houdzi@gmail.com
 - **Lien du Projet** : [JobTracker sur GitHub](https://github.com/votre-utilisateur/JobTracker)
-
-## Remerciements
-
-Un grand merci à tous les contributeurs qui ont aidé à améliorer JobTracker. Votre soutien et vos contributions sont grandement appréciés.
