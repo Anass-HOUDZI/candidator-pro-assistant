@@ -3,12 +3,13 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>JobTracker - Système d'Automatisation de Candidatures</title>
-    <meta name="description" content="Plateforme intelligente pour automatiser et optimiser votre processus de candidatures" />
+    <meta name="description" content="Plateforme intelligente pour automatiser et optimiser votre processus de candidatures avec fonctionnalités hors ligne complètes" />
     <meta name="author" content="JobTracker" />
+    <meta name="keywords" content="candidatures, emploi, job, automatisation, tracking, offline, PWA" />
 
-    <!-- PWA Meta Tags -->
+    <!-- PWA Meta Tags Avancées -->
     <meta name="application-name" content="JobTracker">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -19,62 +20,247 @@
     <meta name="msapplication-TileColor" content="#3B82F6">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="theme-color" content="#3B82F6">
+    <meta name="color-scheme" content="light dark">
 
-    <!-- Apple Touch Icons -->
+    <!-- Performance et Cache Hints -->
+    <meta http-equiv="cache-control" content="public, max-age=31536000">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <!-- Apple Touch Icons avec toutes les tailles -->
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-120x120.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
 
-    <!-- Favicons -->
+    <!-- Favicons optimisés -->
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
     <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3B82F6">
     <link rel="shortcut icon" href="/favicon.ico">
 
-    <!-- Manifest -->
+    <!-- Manifest avec cache busting -->
     <link rel="manifest" href="/manifest.json">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="JobTracker - Automatisation de Candidatures" />
-    <meta property="og:description" content="Système complet avec IA pour gérer vos candidatures d'emploi" />
+    <!-- Open Graph optimisé -->
+    <meta property="og:title" content="JobTracker - Assistant Intelligent pour Candidatures" />
+    <meta property="og:description" content="Application PWA complète pour gérer vos candidatures d'emploi avec fonctionnalités hors ligne" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:site_name" content="JobTracker" />
+    <meta property="og:locale" content="fr_FR" />
 
-    <!-- Twitter Card -->
+    <!-- Twitter Card optimisé -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:title" content="JobTracker - Assistant Intelligent" />
+    <meta name="twitter:description" content="PWA pour gérer vos candidatures avec mode hors ligne" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
-    <!-- Preload Critical Resources -->
+    <!-- Preload et Preconnect optimisés -->
     <link rel="preload" href="/src/main.tsx" as="script">
     <link rel="preconnect" href="https://dwrifryzfyjelhnnjoke.supabase.co">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Performance Hints -->
+    <link rel="prefetch" href="/manifest.json">
+    <link rel="prefetch" href="/icons/icon-192x192.png">
+
+    <!-- CSS critique inline (sera injecté par Vite) -->
+    <style>
+      /* Styles critiques pour éviter le FOUC */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #F9FAFB;
+      }
+      
+      #root {
+        min-height: 100vh;
+      }
+
+      /* Loading indicator */
+      .loading-indicator {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #3B82F6;
+        font-weight: 500;
+      }
+      
+      /* Offline indicator */
+      .offline-ready {
+        background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        font-size: 12px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    </style>
   </head>
 
   <body>
+    <!-- Fallback pour JavaScript désactivé -->
     <noscript>
-      <div style="text-align: center; padding: 20px;">
-        <h1>JavaScript est requis</h1>
-        <p>Veuillez activer JavaScript dans votre navigateur pour utiliser JobTracker.</p>
+      <div style="text-align: center; padding: 40px 20px; font-family: system-ui, sans-serif;">
+        <h1 style="color: #3B82F6; margin-bottom: 16px;">JavaScript est requis</h1>
+        <p style="color: #6B7280; line-height: 1.6;">
+          JobTracker nécessite JavaScript pour fonctionner.<br>
+          Veuillez activer JavaScript dans votre navigateur et recharger la page.
+        </p>
+        <div style="margin-top: 24px; padding: 16px; background: #FEF3C7; border-radius: 8px; color: #92400E;">
+          <strong>Mode hors ligne disponible</strong><br>
+          Une fois JavaScript activé, vous pourrez utiliser JobTracker même sans connexion internet.
+        </div>
       </div>
     </noscript>
     
-    <div id="root"></div>
+    <!-- Conteneur principal de l'application -->
+    <div id="root">
+      <div class="loading-indicator">
+        Chargement de JobTracker...
+      </div>
+    </div>
     
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration avec gestion d'erreurs -->
     <script>
+      // Configuration PWA
+      window.__PWA_CONFIG__ = {
+        enableNotifications: true,
+        enableBackgroundSync: true,
+        enableOfflineMode: true,
+        cacheStrategy: 'networkFirst'
+      };
+
+      // Registration du Service Worker
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-              console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-              console.log('SW registration failed: ', registrationError);
+        let swRegistration = null;
+
+        window.addEventListener('load', async () => {
+          try {
+            swRegistration = await navigator.serviceWorker.register('/sw.js', {
+              scope: '/',
+              updateViaCache: 'none'
             });
+            
+            console.log('Service Worker registered successfully');
+
+            // Gestion des mises à jour
+            swRegistration.addEventListener('updatefound', () => {
+              const newWorker = swRegistration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    showUpdateAvailable();
+                  }
+                });
+              }
+            });
+
+            // Écouter les messages du SW
+            navigator.serviceWorker.addEventListener('message', handleSWMessage);
+
+            // Indiquer que l'app est prête hors ligne
+            if (swRegistration.active) {
+              showOfflineReady();
+            }
+
+          } catch (error) {
+            console.warn('Service Worker registration failed:', error);
+          }
         });
+
+        // Gestion des messages du Service Worker
+        function handleSWMessage(event) {
+          const { type, data } = event.data || {};
+          
+          switch (type) {
+            case 'SW_UPDATED':
+              showUpdateAvailable();
+              break;
+            case 'OFFLINE_READY':
+              showOfflineReady();
+              break;
+            case 'CACHE_UPDATED':
+              console.log('Cache updated:', data);
+              break;
+          }
+        }
+
+        // Afficher notification de mise à jour disponible
+        function showUpdateAvailable() {
+          const updateBanner = document.createElement('div');
+          updateBanner.innerHTML = `
+            <div style="position: fixed; top: 0; left: 0; right: 0; background: #3B82F6; color: white; padding: 12px; text-align: center; z-index: 10000;">
+              Nouvelle version disponible 
+              <button onclick="updateApp()" style="margin-left: 12px; background: white; color: #3B82F6; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;">
+                Mettre à jour
+              </button>
+              <button onclick="this.parentElement.remove()" style="margin-left: 8px; background: transparent; color: white; border: 1px solid white; padding: 4px 8px; border-radius: 4px; cursor: pointer;">
+                Plus tard
+              </button>
+            </div>
+          `;
+          document.body.appendChild(updateBanner);
+        }
+
+        // Afficher indicateur mode hors ligne prêt
+        function showOfflineReady() {
+          setTimeout(() => {
+            const offlineIndicator = document.createElement('div');
+            offlineIndicator.className = 'offline-ready';
+            offlineIndicator.textContent = '✓ Prêt hors ligne';
+            document.body.appendChild(offlineIndicator);
+            
+            setTimeout(() => {
+              offlineIndicator.remove();
+            }, 3000);
+          }, 2000);
+        }
+
+        // Fonction de mise à jour
+        window.updateApp = function() {
+          if (swRegistration && swRegistration.waiting) {
+            swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            window.location.reload();
+          }
+        };
       }
+
+      // Détection des capacités PWA
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPrompt = e;
+        console.log('PWA installation available');
+      });
+
+      // Détection de l'installation
+      window.addEventListener('appinstalled', () => {
+        console.log('PWA installed successfully');
+        window.deferredPrompt = null;
+      });
+
+      // Performance monitoring
+      window.addEventListener('load', () => {
+        if ('performance' in window) {
+          const perfData = performance.getEntriesByType('navigation')[0];
+          console.log(`Page loaded in ${Math.round(perfData.loadEventEnd - perfData.loadEventStart)}ms`);
+        }
+      });
     </script>
     
+    <!-- Module principal de l'application -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
