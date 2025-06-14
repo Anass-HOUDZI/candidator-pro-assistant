@@ -22,24 +22,36 @@ export const usePWA = () => {
       setIsInstalled(true);
     }
 
-    // Enregistrer le service worker seulement si pas déjà fait
-    if ('serviceWorker' in navigator && !swRegistration) {
-      navigator.serviceWorker.getRegistration()
-        .then((existingRegistration) => {
-          if (existingRegistration) {
-            console.log('Service Worker already registered');
-            setSwRegistration(existingRegistration);
-            setupUpdateListener(existingRegistration);
-          } else {
-            return navigator.serviceWorker.register('/sw.js');
-          }
-        })
+    // Enregistrer le service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
-          if (registration && !swRegistration) {
-            console.log('Service Worker registered successfully');
-            setSwRegistration(registration);
-            setupUpdateListener(registration);
-          }
+          console.log('Service Worker registered successfully');
+          setSwRegistration(registration);
+
+          // Vérifier les mises à jour
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  setUpdateAvailable(true);
+                  toast({
+                    title: "Mise à jour disponible",
+                    description: "Une nouvelle version de l'application est prête à être installée.",
+                    action: (
+                      <button
+                        onClick={handleUpdate}
+                        className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+                      >
+                        Mettre à jour
+                      </button>
+                    )
+                  });
+                }
+              });
+            }
+          });
         })
         .catch((error) => {
           console.error('Service Worker registration failed:', error);
@@ -71,32 +83,7 @@ export const usePWA = () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, [toast, swRegistration]);
-
-  const setupUpdateListener = (registration: ServiceWorkerRegistration) => {
-    registration.addEventListener('updatefound', () => {
-      const newWorker = registration.installing;
-      if (newWorker) {
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            setUpdateAvailable(true);
-            toast({
-              title: "Mise à jour disponible",
-              description: "Une nouvelle version de l'application est prête à être installée.",
-              action: (
-                <button
-                  onClick={handleUpdate}
-                  className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
-                >
-                  Mettre à jour
-                </button>
-              )
-            });
-          }
-        });
-      }
-    });
-  };
+  }, [toast]);
 
   const installApp = async () => {
     if (!deferredPrompt) return;
@@ -138,15 +125,11 @@ export const usePWA = () => {
       }
     } else {
       // Fallback pour copier le lien
-      try {
-        await navigator.clipboard.writeText(window.location.origin);
-        toast({
-          title: "Lien copié",
-          description: "Le lien de l'application a été copié dans le presse-papier"
-        });
-      } catch (error) {
-        console.error('Error copying to clipboard:', error);
-      }
+      navigator.clipboard.writeText(window.location.origin);
+      toast({
+        title: "Lien copié",
+        description: "Le lien de l'application a été copié dans le presse-papier"
+      });
     }
   };
 

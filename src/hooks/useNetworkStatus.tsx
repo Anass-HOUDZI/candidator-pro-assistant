@@ -7,9 +7,9 @@ interface NetworkStatus {
   effectiveType: string;
   downlink: number;
   rtt: number;
-  saveData: boolean;
 }
 
+// Étendre l'interface ServiceWorkerRegistration pour inclure l'API sync
 interface ServiceWorkerRegistrationWithSync extends ServiceWorkerRegistration {
   sync: {
     register: (tag: string) => Promise<void>;
@@ -22,16 +22,12 @@ export const useNetworkStatus = () => {
     connectionType: 'unknown',
     effectiveType: 'unknown',
     downlink: 0,
-    rtt: 0,
-    saveData: false
+    rtt: 0
   });
 
   const [isSlowConnection, setIsSlowConnection] = useState(false);
-  const [connectionQuality, setConnectionQuality] = useState<'fast' | 'medium' | 'slow'>('medium');
 
   useEffect(() => {
-    let connectivityCheckInterval: NodeJS.Timeout;
-
     const updateNetworkStatus = () => {
       const connection = (navigator as any).connection || 
                         (navigator as any).mozConnection || 
@@ -42,128 +38,61 @@ export const useNetworkStatus = () => {
         connectionType: connection?.type || 'unknown',
         effectiveType: connection?.effectiveType || 'unknown',
         downlink: connection?.downlink || 0,
-        rtt: connection?.rtt || 0,
-        saveData: connection?.saveData || false
+        rtt: connection?.rtt || 0
       };
 
       setNetworkStatus(status);
       
-      // Analyser la qualité de connexion
+      // Détecter une connexion lente
       const slowConnection = connection?.effectiveType === 'slow-2g' || 
                            connection?.effectiveType === '2g' ||
-                           (connection?.downlink && connection.downlink < 0.5) ||
-                           (connection?.rtt && connection.rtt > 2000);
-      
-      const fastConnection = connection?.effectiveType === '4g' ||
-                           (connection?.downlink && connection.downlink > 2) ||
-                           (connection?.rtt && connection.rtt < 500);
-
+                           (connection?.downlink && connection.downlink < 0.5);
       setIsSlowConnection(slowConnection);
-      
-      if (slowConnection) {
-        setConnectionQuality('slow');
-      } else if (fastConnection) {
-        setConnectionQuality('fast');
-      } else {
-        setConnectionQuality('medium');
-      }
-
-      // Envoyer l'état au service worker
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'NETWORK_STATUS_UPDATE',
-          status: status
-        });
-      }
     };
 
     const handleOnline = () => {
       updateNetworkStatus();
-      
-      // Déclencher la synchronisation automatique
+      // Déclencher la synchronisation des données en attente
       if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
         navigator.serviceWorker.ready.then((registration) => {
+          // Cast vers notre interface étendue pour éviter l'erreur TypeScript
           const syncRegistration = registration as ServiceWorkerRegistrationWithSync;
           return syncRegistration.sync.register('background-sync');
-        }).catch(error => {
-          console.warn('Background sync not supported:', error);
         });
       }
-
-      // Notifier les autres composants
-      window.dispatchEvent(new CustomEvent('network-online'));
     };
 
     const handleOffline = () => {
       updateNetworkStatus();
-      window.dispatchEvent(new CustomEvent('network-offline'));
     };
 
     const handleConnectionChange = () => {
       updateNetworkStatus();
-      
-      // Adapter les requêtes selon la qualité de connexion
-      const connection = (navigator as any).connection;
-      if (connection && connection.saveData) {
-        console.log('Data saver mode activated');
-        window.dispatchEvent(new CustomEvent('data-saver-mode'));
-      }
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && navigator.onLine) {
-        // Re-vérifier la connexion quand l'app redevient visible
-        updateNetworkStatus();
-      }
     };
 
     // Initialiser le statut
     updateNetworkStatus();
 
-    // Écouter les changements
+    // Écouter les changements de statut réseau
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
     
     const connection = (navigator as any).connection;
     if (connection) {
       connection.addEventListener('change', handleConnectionChange);
     }
 
-    // Test périodique de la connectivité - moins fréquent pour éviter la surcharge
-    connectivityCheckInterval = setInterval(() => {
-      if (navigator.onLine) {
-        // Ping silencieux pour vérifier la vraie connectivité
-        fetch('/manifest.json', { 
-          method: 'HEAD',
-          cache: 'no-cache'
-        }).catch(() => {
-          // La connexion semble coupée malgré navigator.onLine
-          if (navigator.onLine) {
-            handleOffline();
-          }
-        });
-      }
-    }, 60000); // Vérification toutes les 60 secondes au lieu de 30
-
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      
       if (connection) {
         connection.removeEventListener('change', handleConnectionChange);
-      }
-      
-      if (connectivityCheckInterval) {
-        clearInterval(connectivityCheckInterval);
       }
     };
   }, []);
 
   return {
     ...networkStatus,
-    isSlowConnection,
-    connectionQuality
+    isSlowConnection
   };
 };
