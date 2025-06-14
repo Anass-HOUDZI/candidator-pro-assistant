@@ -6,6 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { NetworkStatusIndicator } from "@/components/common/NetworkStatusIndicator";
+import { PWAInstallBanner } from "@/components/common/PWAInstallBanner";
+import { OfflineStatusBanner } from "@/components/common/OfflineStatusBanner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Candidatures from "./pages/Candidatures";
@@ -18,15 +21,31 @@ import Scoring from "./pages/Scoring";
 import Reflections from "./pages/Reflections";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: (failureCount, error: any) => {
+        // Ne pas retry si hors ligne
+        if (!navigator.onLine) return false;
+        return failureCount < 3;
+      },
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <NetworkStatusIndicator />
+        <PWAInstallBanner />
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <OfflineStatusBanner />
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={

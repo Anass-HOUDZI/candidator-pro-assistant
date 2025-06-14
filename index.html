@@ -4,22 +4,77 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JobFlow - Système d'Automatisation de Candidatures</title>
+    <title>JobTracker - Système d'Automatisation de Candidatures</title>
     <meta name="description" content="Plateforme intelligente pour automatiser et optimiser votre processus de candidatures" />
-    <meta name="author" content="JobFlow" />
+    <meta name="author" content="JobTracker" />
 
-    <meta property="og:title" content="JobFlow - Automatisation de Candidatures" />
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="JobTracker">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="JobTracker">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="msapplication-TileColor" content="#3B82F6">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="theme-color" content="#3B82F6">
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3B82F6">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="JobTracker - Automatisation de Candidatures" />
     <meta property="og:description" content="Système complet avec IA pour gérer vos candidatures d'emploi" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="/src/main.tsx" as="script">
+    <link rel="preconnect" href="https://dwrifryzfyjelhnnjoke.supabase.co">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
   </head>
 
   <body>
+    <noscript>
+      <div style="text-align: center; padding: 20px;">
+        <h1>JavaScript est requis</h1>
+        <p>Veuillez activer JavaScript dans votre navigateur pour utiliser JobTracker.</p>
+      </div>
+    </noscript>
+    
     <div id="root"></div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
