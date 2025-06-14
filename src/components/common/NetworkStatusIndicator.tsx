@@ -9,10 +9,21 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
 export const NetworkStatusIndicator = () => {
-  const { isOnline, effectiveType, isSlowConnection } = useNetworkStatus();
-  const { pendingSync, isSyncing, syncPendingData } = useOfflineStorage();
   const [syncProgress, setSyncProgress] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+
+  // Gestion sécurisée des hooks
+  let networkData, offlineData;
+  try {
+    networkData = useNetworkStatus();
+    offlineData = useOfflineStorage();
+  } catch (error) {
+    console.error('Error loading network or offline hooks:', error);
+    return null;
+  }
+
+  const { isOnline, effectiveType, isSlowConnection } = networkData;
+  const { pendingSync, isSyncing, syncPendingData } = offlineData;
 
   // Animation du progress pendant la sync
   useEffect(() => {

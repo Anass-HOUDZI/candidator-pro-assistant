@@ -4,11 +4,20 @@ import { Download, X, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { usePWA } from '@/hooks/usePWA';
-import { cn } from '@/lib/utils';
 
 export const PWAInstallBanner = () => {
-  const { isInstallable, isInstalled, installApp, shareApp } = usePWA();
   const [isDismissed, setIsDismissed] = useState(false);
+
+  // Gestion sécurisée du hook PWA
+  let pwaData;
+  try {
+    pwaData = usePWA();
+  } catch (error) {
+    console.error('Error loading PWA hook:', error);
+    return null;
+  }
+
+  const { isInstallable, isInstalled, installApp, shareApp } = pwaData;
 
   if (!isInstallable || isInstalled || isDismissed) {
     return null;

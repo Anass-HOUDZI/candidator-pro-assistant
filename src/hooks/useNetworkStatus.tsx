@@ -30,6 +30,8 @@ export const useNetworkStatus = () => {
   const [connectionQuality, setConnectionQuality] = useState<'fast' | 'medium' | 'slow'>('medium');
 
   useEffect(() => {
+    let connectivityCheckInterval: NodeJS.Timeout;
+
     const updateNetworkStatus = () => {
       const connection = (navigator as any).connection || 
                         (navigator as any).mozConnection || 
@@ -128,8 +130,8 @@ export const useNetworkStatus = () => {
       connection.addEventListener('change', handleConnectionChange);
     }
 
-    // Test périodique de la connectivité
-    const connectivityCheck = setInterval(() => {
+    // Test périodique de la connectivité - moins fréquent pour éviter la surcharge
+    connectivityCheckInterval = setInterval(() => {
       if (navigator.onLine) {
         // Ping silencieux pour vérifier la vraie connectivité
         fetch('/manifest.json', { 
@@ -142,7 +144,7 @@ export const useNetworkStatus = () => {
           }
         });
       }
-    }, 30000); // Vérification toutes les 30 secondes
+    }, 60000); // Vérification toutes les 60 secondes au lieu de 30
 
     return () => {
       window.removeEventListener('online', handleOnline);
@@ -153,7 +155,9 @@ export const useNetworkStatus = () => {
         connection.removeEventListener('change', handleConnectionChange);
       }
       
-      clearInterval(connectivityCheck);
+      if (connectivityCheckInterval) {
+        clearInterval(connectivityCheckInterval);
+      }
     };
   }, []);
 

@@ -46,71 +46,73 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider delayDuration={200} skipDelayDuration={100}>
-      <AuthProvider>
-        <OfflineModeManager>
-          <NetworkStatusIndicator />
-          <PWAInstallBanner />
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <OfflineStatusBanner />
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              } />
-              <Route path="/candidatures" element={
-                <ProtectedRoute>
-                  <Candidatures />
-                </ProtectedRoute>
-              } />
-              <Route path="/entreprises" element={
-                <ProtectedRoute>
-                  <Entreprises />
-                </ProtectedRoute>
-              } />
-              <Route path="/entreprises/:id" element={
-                <ProtectedRoute>
-                  <EntrepriseDetail />
-                </ProtectedRoute>
-              } />
-              <Route path="/analytics" element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              } />
-              <Route path="/automation" element={
-                <ProtectedRoute>
-                  <Automation />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/scoring" element={
-                <ProtectedRoute>
-                  <Scoring />
-                </ProtectedRoute>
-              } />
-              <Route path="/reflections" element={
-                <ProtectedRoute>
-                  <Reflections />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </OfflineModeManager>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider delayDuration={200} skipDelayDuration={100}>
+        <AuthProvider>
+          <OfflineModeManager>
+            <NetworkStatusIndicator />
+            <PWAInstallBanner />
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <OfflineStatusBanner />
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                } />
+                <Route path="/candidatures" element={
+                  <ProtectedRoute>
+                    <Candidatures />
+                  </ProtectedRoute>
+                } />
+                <Route path="/entreprises" element={
+                  <ProtectedRoute>
+                    <Entreprises />
+                  </ProtectedRoute>
+                } />
+                <Route path="/entreprises/:id" element={
+                  <ProtectedRoute>
+                    <EntrepriseDetail />
+                  </ProtectedRoute>
+                } />
+                <Route path="/analytics" element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                } />
+                <Route path="/automation" element={
+                  <ProtectedRoute>
+                    <Automation />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/scoring" element={
+                  <ProtectedRoute>
+                    <Scoring />
+                  </ProtectedRoute>
+                } />
+                <Route path="/reflections" element={
+                  <ProtectedRoute>
+                    <Reflections />
+                  </ProtectedRoute>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </OfflineModeManager>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
