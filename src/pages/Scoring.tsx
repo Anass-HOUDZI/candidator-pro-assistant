@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Target, TrendingUp, Award, Zap } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { AnalyzeOffersDialog } from '@/components/scoring/AnalyzeOffersDialog';
+import { ScoringMetrics } from '@/components/scoring/ScoringMetrics';
+import { ScoringTable } from '@/components/scoring/ScoringTable';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -69,13 +69,6 @@ const Scoring = () => {
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 bg-green-100';
-    if (score >= 75) return 'text-blue-600 bg-blue-100';
-    if (score >= 60) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
-
   if (loading) {
     return (
       <AppLayout>
@@ -107,120 +100,10 @@ const Scoring = () => {
         </div>
 
         {/* Métriques de scoring */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-          <Card>
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-600">Score moyen</p>
-                  <p className="text-lg md:text-2xl font-bold text-gray-900">{metrics.scoreMoyen}</p>
-                </div>
-                <Target className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-600">Meilleur match</p>
-                  <p className="text-lg md:text-2xl font-bold text-gray-900">{metrics.meilleurMatch}</p>
-                </div>
-                <Award className="h-6 w-6 md:h-8 md:w-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-600">Tendance</p>
-                  <p className="text-lg md:text-2xl font-bold text-green-600">+{metrics.tendance}%</p>
-                </div>
-                <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-600">Analyses effectuées</p>
-                  <p className="text-lg md:text-2xl font-bold text-gray-900">{metrics.analysesEffectuees}</p>
-                </div>
-                <Zap className="h-6 w-6 md:h-8 md:w-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <ScoringMetrics metrics={metrics} />
 
         {/* Tableau de scoring */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg md:text-xl">Analyse détaillée des opportunités</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {scores.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Aucune analyse d'offre disponible.</p>
-                <p className="text-sm text-gray-400 mt-2">Utilisez le bouton "Analyser offres" pour commencer.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-2 md:px-4 font-medium text-gray-900 text-sm md:text-base">Entreprise / Poste</th>
-                      <th className="text-left py-3 px-2 md:px-4 font-medium text-gray-900 text-sm md:text-base">Score Global</th>
-                      <th className="text-left py-3 px-2 md:px-4 font-medium text-gray-900 text-sm md:text-base">Compétences</th>
-                      <th className="text-left py-3 px-2 md:px-4 font-medium text-gray-900 text-sm md:text-base">Culture</th>
-                      <th className="text-left py-3 px-2 md:px-4 font-medium text-gray-900 text-sm md:text-base">Localisation</th>
-                      <th className="text-left py-3 px-2 md:px-4 font-medium text-gray-900 text-sm md:text-base">Recommandation</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {scores.map((score, index) => (
-                      <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-4 px-2 md:px-4">
-                          <div>
-                            <div className="font-medium text-gray-900 text-sm md:text-base">{score.entreprise}</div>
-                            <div className="text-xs md:text-sm text-gray-600">{score.poste}</div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-2 md:px-4">
-                          <span className={`inline-flex px-2 md:px-3 py-1 text-xs md:text-sm font-semibold rounded-full ${getScoreColor(score.score_global || 0)}`}>
-                            {score.score_global || 0}/100
-                          </span>
-                        </td>
-                        <td className="py-4 px-2 md:px-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded ${getScoreColor(score.score_competences || 0)}`}>
-                            {score.score_competences || 0}
-                          </span>
-                        </td>
-                        <td className="py-4 px-2 md:px-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded ${getScoreColor(score.score_culture || 0)}`}>
-                            {score.score_culture || 0}
-                          </span>
-                        </td>
-                        <td className="py-4 px-2 md:px-4">
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded ${getScoreColor(score.score_localisation || 0)}`}>
-                            {score.score_localisation || 0}
-                          </span>
-                        </td>
-                        <td className="py-4 px-2 md:px-4">
-                          <span className="text-xs md:text-sm font-medium text-gray-900">{score.recommandation || 'N/A'}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <ScoringTable scores={scores} />
 
         {/* Bouton flottant en bas pour mobile */}
         <div className="fixed bottom-4 right-4 md:hidden z-50">

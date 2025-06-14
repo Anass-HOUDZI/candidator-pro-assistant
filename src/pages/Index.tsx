@@ -6,11 +6,10 @@ import { CandidaturesChart } from '@/components/dashboard/CandidaturesChart';
 import { RecentApplications } from '@/components/dashboard/RecentApplications';
 import { AlertsPanel } from '@/components/dashboard/AlertsPanel';
 import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
-
-  // Mock data for MetricsCards - in a real app, this would come from your data source
   const [metricsData, setMetricsData] = useState({
     candidatures: 0,
     entretiens: 0,
@@ -47,14 +46,7 @@ const Index = () => {
     <AppLayout>
       <div className="space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="space-y-2 md:space-y-4">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary-600 via-purple-600 to-blue-600 bg-clip-text text-transparent font-display">
-            Dashboard
-          </h1>
-          <p className="text-sm md:text-base text-gray-600">
-            Vue d'ensemble de votre recherche d'emploi
-          </p>
-        </div>
+        <DashboardHeader />
 
         {/* Filters */}
         <DashboardFilters

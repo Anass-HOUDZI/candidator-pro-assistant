@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ProfileForm } from '@/components/profile/ProfileForm';
 import { ProfileStats } from '@/components/profile/ProfileStats';
+import { ProfileActions } from '@/components/profile/ProfileActions';
 import { useProfile } from '@/hooks/useProfile';
 
 const Profile = () => {
@@ -33,24 +33,11 @@ const Profile = () => {
         <ProfileStats stats={stats} />
 
         {/* Action Buttons */}
-        <div className="flex flex-col-reverse md:flex-row gap-4 pt-6">
-          <Button 
-            variant="outline" 
-            size="lg" 
-            onClick={fetchProfile}
-            className="w-full md:w-auto order-2 md:order-1"
-          >
-            Annuler
-          </Button>
-          <Button 
-            size="lg" 
-            onClick={saveProfile} 
-            disabled={saving}
-            className="w-full md:w-auto order-1 md:order-2"
-          >
-            {saving ? 'Sauvegarde...' : 'Sauvegarder les modifications'}
-          </Button>
-        </div>
+        <ProfileActions
+          saving={saving}
+          onSave={saveProfile}
+          onCancel={fetchProfile}
+        />
       </div>
     </AppLayout>
   );

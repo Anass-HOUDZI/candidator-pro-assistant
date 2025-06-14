@@ -2,11 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { AuthHeader } from '@/components/auth/AuthHeader';
-import { LoginForm } from '@/components/auth/LoginForm';
-import { SignupForm } from '@/components/auth/SignupForm';
+import { AuthBackground } from '@/components/auth/AuthBackground';
+import { AuthCard } from '@/components/auth/AuthCard';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -121,65 +120,28 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-10 left-10 w-72 h-72 bg-primary-200 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-        <div className="absolute top-10 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-      </div>
+      <AuthBackground />
 
       <div className="w-full max-w-md relative z-10">
         <AuthHeader />
 
-        <Card className="backdrop-blur-sm bg-white/90 border-0 shadow-large animate-scale-in">
-          <CardHeader className="text-center space-y-2 pb-6">
-            <CardTitle className="text-xl md:text-2xl font-bold text-gray-900">
-              {isLogin ? 'Connexion' : 'Créer un compte'}
-            </CardTitle>
-            <p className="text-sm text-gray-600">
-              {isLogin ? 'Connectez-vous à votre compte' : 'Rejoignez JobTracker aujourd\'hui'}
-            </p>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            {isLogin ? (
-              <LoginForm
-                email={email}
-                password={password}
-                showPassword={showPassword}
-                loading={loading}
-                onEmailChange={setEmail}
-                onPasswordChange={setPassword}
-                onTogglePassword={() => setShowPassword(!showPassword)}
-                onSubmit={handleLogin}
-              />
-            ) : (
-              <SignupForm
-                email={email}
-                password={password}
-                firstName={firstName}
-                lastName={lastName}
-                showPassword={showPassword}
-                loading={loading}
-                onEmailChange={setEmail}
-                onPasswordChange={setPassword}
-                onFirstNameChange={setFirstName}
-                onLastNameChange={setLastName}
-                onTogglePassword={() => setShowPassword(!showPassword)}
-                onSubmit={handleSignup}
-              />
-            )}
-
-            <div className="text-center pt-4 border-t border-gray-100">
-              <button
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200 hover:underline"
-              >
-                {isLogin ? "Pas encore de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+        <AuthCard
+          isLogin={isLogin}
+          email={email}
+          password={password}
+          firstName={firstName}
+          lastName={lastName}
+          showPassword={showPassword}
+          loading={loading}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+          onFirstNameChange={setFirstName}
+          onLastNameChange={setLastName}
+          onTogglePassword={() => setShowPassword(!showPassword)}
+          onLogin={handleLogin}
+          onSignup={handleSignup}
+          onToggleMode={() => setIsLogin(!isLogin)}
+        />
 
         <div className="text-center mt-6 text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '200ms' }}>
           En vous connectant, vous acceptez nos{' '}
