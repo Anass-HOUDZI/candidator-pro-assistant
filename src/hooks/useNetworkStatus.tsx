@@ -9,6 +9,13 @@ interface NetworkStatus {
   rtt: number;
 }
 
+// Étendre l'interface ServiceWorkerRegistration pour inclure l'API sync
+interface ServiceWorkerRegistrationWithSync extends ServiceWorkerRegistration {
+  sync: {
+    register: (tag: string) => Promise<void>;
+  };
+}
+
 export const useNetworkStatus = () => {
   const [networkStatus, setNetworkStatus] = useState<NetworkStatus>({
     isOnline: navigator.onLine,
@@ -48,7 +55,9 @@ export const useNetworkStatus = () => {
       // Déclencher la synchronisation des données en attente
       if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
         navigator.serviceWorker.ready.then((registration) => {
-          return registration.sync.register('background-sync');
+          // Cast vers notre interface étendue pour éviter l'erreur TypeScript
+          const syncRegistration = registration as ServiceWorkerRegistrationWithSync;
+          return syncRegistration.sync.register('background-sync');
         });
       }
     };
