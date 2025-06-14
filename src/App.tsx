@@ -48,7 +48,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+    <TooltipProvider delayDuration={200} skipDelayDuration={100}>
       <AuthProvider>
         <OfflineModeManager>
           <NetworkStatusIndicator />
