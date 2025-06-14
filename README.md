@@ -54,7 +54,7 @@
 
 ## Installation
 
-Pour installer et exécuter JobTracker localement, suivez ces étapes :
+Pour installer et exécuter JobTracker, suivez ces étapes :
 
 1. **Cloner le Dépôt** :
    - Clonez le dépôt du projet depuis GitHub en utilisant la commande `git clone`.
