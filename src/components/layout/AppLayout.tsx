@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Footer } from './Footer';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -105,7 +105,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         {/* Mobile Header */}
         <div className="sticky top-0 z-50 flex items-center justify-between h-16 px-4 bg-white border-b shadow-sm">
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -125,25 +125,31 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
 
         {/* Mobile Content */}
-        <main className="p-4 pb-6">
+        <main className="flex-1 p-4 pb-6">
           {children}
         </main>
+
+        {/* Footer */}
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Desktop Sidebar */}
       <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg">
         <SidebarContent />
       </div>
 
       {/* Desktop Content */}
-      <div className="ml-64">
-        <main className="p-4 lg:p-8">
+      <div className="ml-64 flex flex-col min-h-screen">
+        <main className="flex-1 p-4 lg:p-8">
           {children}
         </main>
+        
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );

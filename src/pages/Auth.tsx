@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthHeader } from '@/components/auth/AuthHeader';
 import { AuthBackground } from '@/components/auth/AuthBackground';
 import { AuthCard } from '@/components/auth/AuthCard';
+import { Footer } from '@/components/layout/Footer';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -119,10 +120,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-purple-50 flex flex-col items-center justify-center p-4 relative overflow-hidden">
       <AuthBackground />
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 flex-1 flex flex-col justify-center">
         <AuthHeader />
 
         <AuthCard
@@ -150,6 +151,8 @@ const Auth = () => {
           <a href="#" className="text-primary-600 hover:underline">politique de confidentialité</a>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };
