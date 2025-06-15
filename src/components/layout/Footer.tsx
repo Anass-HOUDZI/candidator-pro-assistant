@@ -27,7 +27,7 @@ export const Footer: React.FC<FooterProps> = ({ authStyle = false }) => {
         <p
           className={
             authStyle
-              ? "text-base md:text-lg font-bold tracking-wide text-blue-600 drop-shadow"
+              ? "text-xs md:text-sm font-normal tracking-wide text-gray-600"
               : "text-sm text-gray-700 font-medium tracking-wide drop-shadow"
           }
         >
@@ -38,7 +38,7 @@ export const Footer: React.FC<FooterProps> = ({ authStyle = false }) => {
             rel="noopener noreferrer"
             className={
               authStyle
-                ? "text-blue-600 underline underline-offset-2 hover:text-blue-800 font-bold transition-colors"
+                ? "text-gray-600 underline underline-offset-2 hover:text-blue-800 font-normal transition-colors"
                 : "text-blue-600 hover:text-blue-800 underline font-medium"
             }
           >
