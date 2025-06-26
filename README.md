@@ -2,6 +2,8 @@
 
 **JobTracker** est une application SaaS conçue pour optimiser et simplifier la recherche d'emploi. Elle offre une suite complète d'outils pour suivre les candidatures, analyser les performances, et automatiser les tâches répétitives, le tout dans une interface utilisateur intuitive et responsive.
 
+**Lien du Projet** : [JobTracker](https://candidator-pro-assistant.lovable.app/)
+
 ## Fonctionnalités Principales
 
 ### Suivi des Candidatures
@@ -114,5 +116,4 @@ Les contributions sont les bienvenues ! Pour contribuer à JobTracker, suivez ce
 
 Pour plus d'informations ou pour poser des questions sur le projet, vous pouvez contacter :
 
-- **Anass Houdzi** : anass.houdzi@gmail.com
-- **Lien du Projet** : [JobTracker](https://candidator-pro-assistant.lovable.app/)
+**Anass Houdzi** : anass.houdzi@gmail.com
