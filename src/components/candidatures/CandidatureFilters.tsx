@@ -1,68 +1,73 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, SortAsc, SortDesc, X } from 'lucide-react';
+import { Filter, SortAsc, SortDesc, X } from 'lucide-react';
+import { CandidaturesSearchBar } from './CandidaturesSearchBar';
+import { StatusFilterButtons } from './StatusFilterButtons';
+import { useCandidaturesFilters } from '@/hooks/useCandidaturesFilters';
 
 interface CandidatureFiltersProps {
   onFilterChange: (filters: any) => void;
   onSearchChange: (search: string) => void;
 }
 
-export const CandidatureFilters = ({ onFilterChange, onSearchChange }: CandidatureFiltersProps) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState<any>({
-    statut: '',
-    dateRange: '',
-    priority: '',
-    sortBy: 'date',
-    sortOrder: 'desc'
-  });
+const statusOptions = [
+  { value: 'En cours', label: 'En cours', color: 'bg-blue-100 text-blue-800' },
+  { value: 'Entretien', label: 'Entretien', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'Offre reçue', label: 'Offre reçue', color: 'bg-green-100 text-green-800' },
+  { value: 'Rejeté', label: 'Rejeté', color: 'bg-red-100 text-red-800' }
+];
+
+export const CandidatureFilters: React.FC<CandidatureFiltersProps> = ({ 
+  onFilterChange, 
+  onSearchChange 
+}) => {
+  const {
+    filters,
+    updateFilter,
+    updateFilters,
+    clearFilters,
+    activeFiltersCount
+  } = useCandidaturesFilters();
+  
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const statusOptions = [
-    { value: 'En cours', label: 'En cours', color: 'bg-blue-100 text-blue-800' },
-    { value: 'Entretien', label: 'Entretien', color: 'bg-yellow-100 text-yellow-800' },
-    { value: 'Offre reçue', label: 'Offre reçue', color: 'bg-green-100 text-green-800' },
-    { value: 'Rejeté', label: 'Rejeté', color: 'bg-red-100 text-red-800' }
-  ];
-
   const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
+    updateFilter('searchTerm', value);
     onSearchChange(value);
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    const newFilters = { ...selectedFilters, [key]: value };
-    setSelectedFilters(newFilters);
+    const newFilters = { ...filters, [key]: value };
+    updateFilters({ [key]: value });
     onFilterChange(newFilters);
   };
 
-  const clearFilters = () => {
-    const clearedFilters = {
+  const handleStatusChange = (status: string) => {
+    updateFilter('statut', status);
+    onFilterChange({ ...filters, statut: status });
+  };
+
+  const handleClearFilters = () => {
+    clearFilters();
+    onFilterChange({
       statut: '',
       dateRange: '',
       priority: '',
       sortBy: 'date',
       sortOrder: 'desc'
-    };
-    setSelectedFilters(clearedFilters);
-    setSearchTerm('');
-    onFilterChange(clearedFilters);
+    });
     onSearchChange('');
   };
-
-  const activeFiltersCount = Object.values(selectedFilters).filter(value => value && value !== 'date' && value !== 'desc').length;
 
   return (
     <Card className="mb-6 shadow-soft border border-gray-100/50 bg-white/90 backdrop-blur-sm">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-lg font-semibold text-gray-900">
           <div className="flex items-center gap-2">
-            <Search className="h-5 w-5 text-primary-600" />
+            <Filter className="h-5 w-5 text-primary-600" />
             Recherche et Filtres
             {activeFiltersCount > 0 && (
               <Badge variant="secondary" className="ml-2">
@@ -83,48 +88,22 @@ export const CandidatureFilters = ({ onFilterChange, onSearchChange }: Candidatu
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* Barre de recherche principale */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Rechercher par entreprise, poste, ou mots-clés..."
-            value={searchTerm}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full bg-white/80 backdrop-blur-sm border-gray-200 focus:border-primary-500 focus:ring-primary-500"
-          />
-          {searchTerm && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleSearchChange('')}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        <CandidaturesSearchBar
+          searchTerm={filters.searchTerm}
+          onSearchChange={handleSearchChange}
+        />
 
-        {/* Filtres rapides */}
-        <div className="flex flex-wrap gap-2">
-          {statusOptions.map((status) => (
-            <Button
-              key={status.value}
-              variant={selectedFilters.statut === status.value ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleFilterChange('statut', selectedFilters.statut === status.value ? '' : status.value)}
-              className="text-xs"
-            >
-              {status.label}
-            </Button>
-          ))}
-        </div>
+        <StatusFilterButtons
+          statusOptions={statusOptions}
+          selectedStatus={filters.statut}
+          onStatusChange={handleStatusChange}
+        />
 
-        {/* Filtres avancés */}
         {showAdvanced && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-100">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Période</label>
-              <Select value={selectedFilters.dateRange} onValueChange={(value) => handleFilterChange('dateRange', value)}>
+              <Select value={filters.dateRange} onValueChange={(value) => handleFilterChange('dateRange', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Toutes les dates" />
                 </SelectTrigger>
@@ -140,7 +119,7 @@ export const CandidatureFilters = ({ onFilterChange, onSearchChange }: Candidatu
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Priorité</label>
-              <Select value={selectedFilters.priority} onValueChange={(value) => handleFilterChange('priority', value)}>
+              <Select value={filters.priority} onValueChange={(value) => handleFilterChange('priority', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Toutes les priorités" />
                 </SelectTrigger>
@@ -155,7 +134,7 @@ export const CandidatureFilters = ({ onFilterChange, onSearchChange }: Candidatu
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Trier par</label>
-              <Select value={selectedFilters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
+              <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -172,24 +151,23 @@ export const CandidatureFilters = ({ onFilterChange, onSearchChange }: Candidatu
               <label className="text-sm font-medium text-gray-700">Ordre</label>
               <Button
                 variant="outline"
-                onClick={() => handleFilterChange('sortOrder', selectedFilters.sortOrder === 'asc' ? 'desc' : 'asc')}
+                onClick={() => handleFilterChange('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
                 className="w-full justify-start"
               >
-                {selectedFilters.sortOrder === 'asc' ? (
+                {filters.sortOrder === 'asc' ? (
                   <SortAsc className="h-4 w-4 mr-2" />
                 ) : (
                   <SortDesc className="h-4 w-4 mr-2" />
                 )}
-                {selectedFilters.sortOrder === 'asc' ? 'Croissant' : 'Décroissant'}
+                {filters.sortOrder === 'asc' ? 'Croissant' : 'Décroissant'}
               </Button>
             </div>
           </div>
         )}
 
-        {/* Actions */}
         {activeFiltersCount > 0 && (
           <div className="flex justify-end pt-2">
-            <Button variant="outline" size="sm" onClick={clearFilters}>
+            <Button variant="outline" size="sm" onClick={handleClearFilters}>
               <X className="h-4 w-4 mr-1" />
               Effacer les filtres
             </Button>
