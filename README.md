@@ -114,6 +114,6 @@ Les contributions sont les bienvenues ! Pour contribuer à JobTracker, suivez ce
 
 ## Contact
 
-Pour plus d'informations ou pour poser des questions sur le projet, vous pouvez contacter :
+Pour plus d'informations ou pour poser des questions sur notre projet, vous pouvez contacter :
 
 **Anass Houdzi** : anass.houdzi@gmail.com
